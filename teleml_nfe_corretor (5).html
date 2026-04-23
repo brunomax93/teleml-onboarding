@@ -30,6 +30,7 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
 .btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
 .btn-success{background:var(--verde);color:#fff;}
 .btn-success:hover{opacity:0.9;}
+.btn-danger{background:var(--vermelho);color:#fff;}
 .btn-outline{background:transparent;border:1px solid var(--borda);color:#aaa;}
 .btn-outline:hover{border-color:var(--azul-c);color:#fff;}
 .info-box{border-radius:10px;padding:14px;margin:12px 0;font-size:0.85rem;line-height:1.7;}
@@ -65,6 +66,7 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;margin-bottom:8px;}
 .badge-red{background:rgba(255,107,107,0.15);color:var(--vermelho);}
 .badge-green{background:rgba(29,158,117,0.15);color:var(--verde);}
+.divisor{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:16px 0;}
 </style>
 </head>
 <body>
@@ -114,7 +116,7 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
       <span id="ind3">3. GERAR</span>
       <span id="ind4">4. NF-e OK</span>
       <span id="ind5">5. CORRIGIR</span>
-      <span id="ind6">6. DOWNLOAD</span>
+      <span id="ind6">6. ENVIAR</span>
     </div>
 
     <!-- STEP 1 -->
@@ -214,22 +216,37 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
     <!-- STEP 6 -->
     <div class="tela" id="step6">
       <div class="card">
-        <div class="card-title">⬇️ XML Pronto para o ML!</div>
-        <div class="info-green">✅ XML corrigido com sucesso! Pronto para enviar ao Mercado Livre.</div>
+        <div class="card-title">🚀 Enviar para o ML</div>
+        <div class="info-green">✅ XML corrigido! Escolha como enviar ao Mercado Livre.</div>
         <br>
         <div class="dado-row"><span class="dado-label">Número NF:</span><span class="dado-valor" id="fin-numero">—</span></div>
         <div class="dado-row"><span class="dado-label">Valor corrigido:</span><span class="dado-valor" style="color:var(--verde)" id="fin-valor">—</span></div>
         <div class="dado-row"><span class="dado-label">Pedido ML:</span><span class="dado-valor" style="color:var(--azul-c)" id="fin-ml">—</span></div>
         <br>
-        <div class="info-blue">
-          📋 Como enviar ao ML:<br>
-          1. Baixe o XML corrigido abaixo<br>
-          2. Acesse a venda no Mercado Livre<br>
-          3. Vá em <strong>Emitir NF-e → Enviar XML</strong><br>
-          4. Faça o upload do arquivo
+
+        <!-- OPÇÃO 1: ENVIO AUTOMÁTICO -->
+        <div style="background:rgba(29,158,117,0.06);border:1px solid rgba(29,158,117,0.2);border-radius:12px;padding:18px;margin-bottom:12px;">
+          <p style="font-size:0.85rem;font-weight:700;color:var(--verde);margin-bottom:8px">🤖 Opção 1 — Envio Automático</p>
+          <p style="font-size:0.8rem;color:#666;margin-bottom:12px">O sistema envia o XML diretamente para o Mercado Livre via API.</p>
+          <button class="btn btn-success" id="btn-enviar-ml" onclick="enviarParaML()" style="margin-bottom:0">🚀 ENVIAR AUTOMATICAMENTE AO ML</button>
+          <div class="log" id="log-envio-ml" style="display:none"></div>
         </div>
-        <br>
-        <button class="btn btn-success" onclick="baixarXmlCorrigido()">⬇️ BAIXAR XML CORRIGIDO</button>
+
+        <hr class="divisor">
+
+        <!-- OPÇÃO 2: MANUAL -->
+        <div style="background:rgba(41,182,246,0.04);border:1px solid rgba(41,182,246,0.15);border-radius:12px;padding:18px;margin-bottom:12px;">
+          <p style="font-size:0.85rem;font-weight:700;color:var(--azul-c);margin-bottom:8px">📥 Opção 2 — Upload Manual</p>
+          <div class="info-blue" style="margin-top:0">
+            1. Baixe o XML corrigido<br>
+            2. Acesse a venda no Mercado Livre<br>
+            3. Vá em <strong>Emitir NF-e → Enviar XML</strong><br>
+            4. Faça o upload do arquivo
+          </div>
+          <button class="btn btn-outline" onclick="baixarXmlCorrigido()" style="margin-bottom:0">⬇️ BAIXAR XML CORRIGIDO</button>
+        </div>
+
+        <hr class="divisor">
         <button class="btn btn-primary" onclick="novaNotaFiscal()">➕ Gerar Nova NF-e</button>
       </div>
     </div>
@@ -449,32 +466,28 @@ function corrigirXml() {
     let xml = app.xmlOriginal;
     let total = 0;
 
-    // Extrai vNF real do XML para garantir que está usando o valor correto
+    // Extrai vNF real do XML para garantir valor correto
     const matchVNF = xml.match(/<vNF>([\d.]+)<\/vNF>/);
     const valorNoXml = matchVNF ? matchVNF[1] : vA;
-
     if(valorNoXml !== vA) {
-      addLog('log-corrigir', '⚠️ Valor no XML (' + valorNoXml + ') diferente do esperado (' + vA + ') — usando valor do XML', 'warn');
+      addLog('log-corrigir', '⚠️ Usando valor do XML: ' + valorNoXml, 'warn');
     }
 
-    const vAReal = valorNoXml;
-
     ['vUnCom', 'vUnTrib', 'vNF', 'vProd'].forEach(function(campo) {
-      const reg = new RegExp('<' + campo + '>' + vAReal.replace('.', '\\.') + '</' + campo + '>', 'g');
+      const reg = new RegExp('<' + campo + '>' + valorNoXml.replace('.', '\\.') + '</' + campo + '>', 'g');
       const matches = xml.match(reg);
       if(matches) {
         xml = xml.replace(reg, '<' + campo + '>' + vN + '</' + campo + '>');
         total += matches.length;
-        addLog('log-corrigir', '✅ <' + campo + '> ' + vAReal + ' → ' + vN, 'ok');
+        addLog('log-corrigir', '✅ <' + campo + '> ' + valorNoXml + ' → ' + vN, 'ok');
       }
     });
 
-    // vPag só substitui se igual ao valor da NF
-    const regPag = new RegExp('<vPag>' + vAReal.replace('.', '\\.') + '</vPag>', 'g');
+    const regPag = new RegExp('<vPag>' + valorNoXml.replace('.', '\\.') + '</vPag>', 'g');
     if(xml.match(regPag)) {
       xml = xml.replace(regPag, '<vPag>' + vN + '</vPag>');
       total++;
-      addLog('log-corrigir', '✅ <vPag> ' + vAReal + ' → ' + vN, 'ok');
+      addLog('log-corrigir', '✅ <vPag> ' + valorNoXml + ' → ' + vN, 'ok');
     }
 
     addLog('log-corrigir', total + ' substituições realizadas', total > 0 ? 'ok' : 'warn');
@@ -486,8 +499,54 @@ function corrigirXml() {
     document.getElementById('fin-valor').textContent = fmt(app.valorReal);
     document.getElementById('fin-ml').textContent = app.pedido.numero_ecommerce;
 
+    // Reset botão envio
+    document.getElementById('btn-enviar-ml').textContent = '🚀 ENVIAR AUTOMATICAMENTE AO ML';
+    document.getElementById('btn-enviar-ml').disabled = false;
+    document.getElementById('log-envio-ml').innerHTML = '';
+    document.getElementById('log-envio-ml').style.display = 'none';
+
     setTimeout(function() { mudarStep('step6', 6); }, 800);
   }, 500);
+}
+
+// ── ENVIAR AO ML ──
+async function enviarParaML() {
+  const btn = document.getElementById('btn-enviar-ml');
+  btn.innerHTML = '<span class="spinner"></span>Enviando ao ML...';
+  btn.disabled = true;
+
+  addLog('log-envio-ml', 'Convertendo XML para base64...', 'info');
+
+  try {
+    const b64 = btoa(unescape(encodeURIComponent(app.xmlCorrigido)));
+    addLog('log-envio-ml', 'Enviando via proxy...', 'warn');
+
+    const data = await chamarProxy({
+      action: 'enviar_nfe_ml',
+      usuario: app.usuario,
+      order_id: app.pedido.numero_ecommerce,
+      pack_id: null,
+      xml_base64: b64,
+      nome_arquivo: 'CORRIGIDO_' + app.nomeArquivo
+    });
+
+    addLog('log-envio-ml', 'Status HTTP: ' + data.status, 'info');
+
+    if(data.status === 200 || data.status === 201) {
+      addLog('log-envio-ml', '✅ NF-e enviada ao ML com sucesso!', 'ok');
+      btn.textContent = '✅ ENVIADO COM SUCESSO!';
+    } else {
+      const resposta = data.resposta ? data.resposta.substring(0,300) : 'Sem resposta';
+      addLog('log-envio-ml', '❌ Resposta: ' + resposta, 'err');
+      addLog('log-envio-ml', 'Tente o upload manual abaixo.', 'warn');
+      btn.textContent = '🚀 TENTAR NOVAMENTE';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    addLog('log-envio-ml', 'ERRO: ' + e.message, 'err');
+    btn.textContent = '🚀 TENTAR NOVAMENTE';
+    btn.disabled = false;
+  }
 }
 
 // ── DOWNLOADS ──
