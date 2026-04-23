@@ -11,73 +11,88 @@
             --bg: #080f24; --card: rgba(255,255,255,0.04); --borda: rgba(41,182,246,0.15);
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'DM Sans', sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
-        .header { background:rgba(13,31,78,0.95); border-bottom:1px solid var(--borda); padding:15px 25px; }
+        body { font-family:'DM Sans', sans-serif; background:var(--bg); color:#fff; min-height:100vh; overflow-x: hidden; }
+        .header { background:rgba(13,31,78,0.95); border-bottom:1px solid var(--borda); padding:15px 25px; display: flex; align-items: center; justify-content: space-between; }
         .header-logo { font-family:'Syne', sans-serif; font-size:1.2rem; font-weight:800; }
         .header-logo span { color:#f5c518; }
         .main { max-width:700px; margin:0 auto; padding:40px 20px; }
-        .card { background:var(--card); border:1px solid var(--borda); border-radius:16px; padding:25px; margin-bottom:20px; }
-        .input-field { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; color:#fff; margin-bottom:15px; outline:none; }
+        .card { background:var(--card); border:1px solid var(--borda); border-radius:16px; padding:25px; margin-bottom:20px; backdrop-filter: blur(10px); }
+        .input-field { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; color:#fff; margin-bottom:15px; outline:none; transition: 0.3s; }
+        .input-field:focus { border-color: var(--azul-c); background: rgba(255,255,255,0.08); }
         .btn { width:100%; padding:14px; border-radius:12px; border:none; font-family:'Syne', sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer; margin-bottom:10px; transition: 0.2s; text-decoration:none; display:block; text-align:center; }
         .btn-primary { background:linear-gradient(135deg,var(--azul-m),var(--azul-c)); color:#fff; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-success { background:var(--verde); color:#fff; }
         .btn-outline { background:transparent; border:1px solid var(--borda); color:#aaa; }
         .info-box { background:rgba(41,182,246,0.1); border:1px solid var(--azul-c); border-radius:10px; padding:15px; margin:15px 0; font-size:0.85rem; color:#ade8ff; }
-        .secao { display:none; }
+        .secao { display:none; animation: fadeIn 0.4s ease-out; }
         .secao.ativa { display:block; }
-        .log-box { font-family:monospace; font-size:0.75rem; background:#000; padding:12px; border-radius:8px; margin-top:10px; max-height:150px; overflow-y:auto; color:#888; border: 1px solid #1a1a2e; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .log-box { font-family:monospace; font-size:0.75rem; background:#000; padding:15px; border-radius:10px; margin-top:10px; color:#888; border: 1px solid #1a1a2e; min-height: 60px; line-height: 1.5; }
     </style>
 </head>
 <body>
 
-<div class="header"><div class="header-logo">TELE<span>ML</span> — Corretor</div></div>
+<div class="header">
+    <div class="header-logo">TELE<span>ML</span> — Corretor</div>
+</div>
 
 <div class="main">
     <div class="secao ativa" id="step1">
         <div class="card">
-            <h3>🔑 Configuração</h3><br>
+            <h3 style="margin-bottom:15px">🔑 Autenticação</h3>
+            <p style="font-size:0.8rem; color:#888; margin-bottom:20px">Insira os dados da API para começar.</p>
             <input type="password" id="token" class="input-field" placeholder="Access Token (APP_USR-...)">
-            <input type="text" id="order" class="input-field" placeholder="ID da Venda (Order ID)">
-            <button class="btn btn-primary" onclick="irPara(2)">Próximo Passo →</button>
+            <input type="text" id="order" class="input-field" placeholder="ID da Venda (Ex: 200000...)">
+            <button class="btn btn-primary" onclick="irPara(2)">Configurar Pedido →</button>
         </div>
     </div>
 
     <div class="secao" id="step2">
         <div class="card">
-            <h3>📄 Upload do XML</h3><br>
-            <input type="file" id="fileInput" accept=".xml" onchange="processarXml(this)" style="margin-bottom:20px">
+            <h3 style="margin-bottom:15px">📄 Arquivo NF-e</h3>
+            <input type="file" id="fileInput" accept=".xml" onchange="processarXml(this)" style="margin-bottom:20px; font-size:0.8rem">
             <div id="preview" class="info-box" style="display:none"></div>
-            <button class="btn btn-primary" id="btn-fetch" onclick="buscarValor()" disabled>🔍 Buscar Valor Real no ML</button>
-            <button class="btn btn-outline" onclick="irPara(1)">Voltar</button>
+            <button class="btn btn-primary" id="btn-fetch" onclick="buscarValor()" disabled>🔍 Validar com Mercado Livre</button>
+            <button class="btn btn-outline" onclick="irPara(1)">← Voltar</button>
         </div>
     </div>
 
     <div class="secao" id="step3">
         <div class="card">
-            <h3>✏️ Conferência</h3><br>
-            <p>Valor Original: <span id="v-xml" style="color:var(--vermelho)">—</span></p>
-            <p>Valor Real ML: <span id="v-ml" style="color:var(--verde)">—</span></p><br>
-            <button class="btn btn-primary" onclick="corrigir()">✏️ Corrigir XML</button>
-            <div id="bloco-pos" style="display:none">
-                <button class="btn btn-success" onclick="baixar()">⬇️ BAIXAR XML AGORA</button>
-                <button class="btn btn-primary" onclick="irPara(4)">Ir para o Envio →</button>
+            <h3 style="margin-bottom:15px">✏️ Conferência de Valores</h3>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <div style="flex:1; background:rgba(255,107,107,0.1); padding:15px; border-radius:10px; border:1px solid rgba(255,107,107,0.2)">
+                    <small style="color:#ff6b6b">Valor no XML</small>
+                    <div id="v-xml" style="font-size:1.4rem; font-weight:700">R$ 0,00</div>
+                </div>
+                <div style="flex:1; background:rgba(29,158,117,0.1); padding:15px; border-radius:10px; border:1px solid rgba(29,158,117,0.2)">
+                    <small style="color:var(--verde)">Valor Real ML</small>
+                    <div id="v-ml" style="font-size:1.4rem; font-weight:700; color:var(--verde)">R$ 0,00</div>
+                </div>
             </div>
-            <button class="btn btn-outline" onclick="irPara(2)">Voltar</button>
+            <button class="btn btn-primary" onclick="corrigir()">✏️ Aplicar Correção Automática</button>
+            <div id="bloco-pos" style="display:none; margin-top:15px; border-top:1px solid var(--borda); padding-top:15px">
+                <button class="btn btn-success" onclick="baixar()">⬇️ BAIXAR XML CORRIGIDO</button>
+                <button class="btn btn-outline" onclick="irPara(4)">Já baixei, quero enviar →</button>
+            </div>
+            <button class="btn btn-outline" onclick="irPara(2)" style="margin-top:10px">Voltar</button>
         </div>
     </div>
 
     <div class="secao" id="step4">
         <div class="card">
-            <h3>🚀 Envio Final</h3><br>
-            <button class="btn btn-success" id="btn-enviar" onclick="enviar()">🚀 ENVIAR PARA O ML</button>
-            <button class="btn btn-outline" onclick="baixar()">⬇️ Baixar XML novamente</button>
-            <div class="log-box" id="log-final">Aguardando...</div>
-            <button class="btn btn-outline" onclick="location.reload()" style="margin-top:20px">Reiniciar</button>
+            <h3 style="margin-bottom:15px">🚀 Envio direto</h3>
+            <p style="font-size:0.8rem; color:#888; margin-bottom:20px">Clique abaixo para subir o XML corrigido para o servidor do ML.</p>
+            <button class="btn btn-success" id="btn-enviar" onclick="enviar()">🚀 ENVIAR PARA O MERCADO LIVRE</button>
+            <div class="log-box" id="log-final">Status: Aguardando comando...</div>
+            <button class="btn btn-outline" onclick="location.reload()" style="margin-top:20px">Processar Outro</button>
         </div>
     </div>
 </div>
 
 <script>
+    // Link direto do seu Google Script
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrErjqzyIERF_5ETigcPuQ9-C3EXbKUko7swvWH9w05TgHMhWHSnH4gYq_ZqLuEV5i2A/exec'; 
     
     let db = { token: '', order: '', xml: '', xmlCorr: '', vXml: 0, vMl: 0, nome: '', packId: '' };
@@ -85,7 +100,7 @@
     function irPara(n) {
         document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
         document.getElementById('step' + n).classList.add('ativa');
-        if(n===1) { db.token = document.getElementById('token').value; db.order = document.getElementById('order').value; }
+        if(n===1) { db.token = document.getElementById('token').value.trim(); db.order = document.getElementById('order').value.trim(); }
     }
 
     function processarXml(input) {
@@ -96,27 +111,35 @@
             db.xml = e.target.result;
             const doc = new DOMParser().parseFromString(db.xml, "text/xml");
             db.vXml = parseFloat(doc.querySelector('vNF')?.textContent || 0);
-            document.getElementById('preview').style.display = 'block';
-            document.getElementById('preview').textContent = `Arquivo: ${f.name} (R$ ${db.vXml.toFixed(2)})`;
+            const preview = document.getElementById('preview');
+            preview.style.display = 'block';
+            preview.textContent = `Arquivo: ${f.name} (R$ ${db.vXml.toFixed(2)})`;
             document.getElementById('btn-fetch').disabled = false;
         };
         r.readAsText(f);
     }
 
     async function buscarValor() {
+        const btn = document.getElementById('btn-fetch');
+        btn.textContent = "Consultando ML..."; btn.disabled = true;
         try {
             const res = await fetch(SCRIPT_URL, {
                 method: 'POST',
+                mode: 'cors',
                 headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({ action: 'buscar_pedido', token: db.token, order_id: db.order })
             });
             const data = await res.json();
+            if(!data.total_amount) throw new Error("Pedido não encontrado.");
             db.vMl = data.total_amount;
             db.packId = data.pack_id || data.id;
             document.getElementById('v-xml').textContent = "R$ " + db.vXml.toFixed(2);
             document.getElementById('v-ml').textContent = "R$ " + db.vMl.toFixed(2);
             irPara(3);
-        } catch(e) { alert("Erro de conexão!"); }
+        } catch(e) { 
+            alert("Erro de conexão: " + e.message); 
+            btn.textContent = "🔍 Validar com Mercado Livre"; btn.disabled = false;
+        }
     }
 
     function corrigir() {
@@ -141,18 +164,25 @@
 
     async function enviar() {
         const log = document.getElementById('log-final');
-        log.textContent = "Enviando...";
+        const btn = document.getElementById('btn-enviar');
+        log.textContent = "🚀 Enviando XML...";
+        btn.disabled = true;
         try {
             const b64 = btoa(unescape(encodeURIComponent(db.xmlCorr)));
             const res = await fetch(SCRIPT_URL, {
                 method: 'POST',
+                mode: 'cors',
                 headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({ action: 'enviar_nfe', token: db.token, pack_id: db.packId, xml_base64: b64, nome_arquivo: db.nome })
             });
             const result = await res.json();
-            if(result.error) throw new Error(result.message);
-            log.style.color = "#1D9E75"; log.textContent = "✅ Enviado com sucesso!";
-        } catch(e) { log.style.color = "#ff6b6b"; log.textContent = "❌ Erro: " + e.message; }
+            if(result.error || result.message === "Forbidden") throw new Error(result.message || "Acesso Negado");
+            log.style.color = "#1D9E75"; log.textContent = "✅ SUCESSO! Nota enviada e aceita pelo ML.";
+        } catch(e) { 
+            log.style.color = "#ff6b6b"; 
+            log.textContent = "❌ ERRO: " + e.message; 
+            btn.disabled = false;
+        }
     }
 </script>
 </body>
