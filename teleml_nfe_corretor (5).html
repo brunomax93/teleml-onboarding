@@ -4,225 +4,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TELEML — Corretor de NF-e</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --azul: #0d1f4e; --azul-m: #1565c0; --azul-c: #29b6f6;
-            --amarelo: #f5c518; --verde: #1D9E75; --vermelho: #ff6b6b;
+            --azul-m: #1565c0; --azul-c: #29b6f6; --verde: #1D9E75; --vermelho: #ff6b6b;
             --bg: #080f24; --card: rgba(255,255,255,0.04); --borda: rgba(41,182,246,0.15);
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'DM Sans',sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
-        .header { background:rgba(13,31,78,0.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--borda); padding:14px 28px; display:flex; align-items:center; gap:14px; }
-        .header-logo { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; color:#fff; }
-        .header-logo span { color:var(--amarelo); }
-        .main { max-width:780px; margin:0 auto; padding:32px 20px 60px; }
-        .steps { display:flex; gap:0; margin-bottom:32px; }
-        .step { flex:1; display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:2px solid #1a1a2e; opacity: 0.4; }
-        .step.active { border-color:var(--azul-c); opacity: 1; }
-        .step.done { border-color:var(--verde); opacity: 1; }
-        .step-num { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700; background:#1a1a2e; color:#fff; }
-        .step.active .step-num { background:var(--azul-c); color:#000; }
-        .step-label { font-size:0.78rem; font-weight:500; }
-        .card { background:var(--card); border:1px solid var(--borda); border-radius:16px; padding:24px; margin-bottom:20px; }
-        .card-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+        body { font-family:'DM Sans', sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
+        .header { background:rgba(13,31,78,0.95); border-bottom:1px solid var(--borda); padding:15px 25px; }
+        .header-logo { font-family:'Syne', sans-serif; font-size:1.2rem; font-weight:800; }
+        .header-logo span { color:#f5c518; }
+        .main { max-width:700px; margin:0 auto; padding:40px 20px; }
+        .card { background:var(--card); border:1px solid var(--borda); border-radius:16px; padding:25px; margin-bottom:20px; }
         .input-field { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; color:#fff; margin-bottom:15px; outline:none; }
-        .btn { width:100%; padding:14px; border-radius:12px; border:none; font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; cursor:pointer; transition:all 0.2s; margin-bottom:10px; }
+        .btn { width:100%; padding:14px; border-radius:12px; border:none; font-family:'Syne', sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer; margin-bottom:10px; transition: 0.2s; text-decoration:none; display:block; text-align:center; }
         .btn-primary { background:linear-gradient(135deg,var(--azul-m),var(--azul-c)); color:#fff; }
         .btn-success { background:var(--verde); color:#fff; }
-        .btn-outline { background:transparent; border:1px solid var(--borda); color:#888; }
-        .btn-outline:hover { border-color:#fff; color:#fff; }
-        .info-box { border-radius:10px; padding:14px; margin:14px 0; font-size:0.85rem; background:rgba(41,182,246,0.1); border:1px solid var(--azul-c); color: #ade8ff; }
-        .dados-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
-        .dado-item { background:rgba(255,255,255,0.03); border:1px solid #1a1a2e; border-radius:10px; padding:12px; }
-        .dado-label { font-size:0.7rem; color:#888; text-transform:uppercase; margin-bottom:4px; }
-        .dado-valor { font-size:1rem; font-weight:700; }
-        .green { color:var(--verde); }
-        .red { color:var(--vermelho); }
-        .loading { display:none; text-align:center; padding:20px; }
-        .loading.show { display:block; }
-        .log-box { background:#050a15; border:1px solid #1a1a2e; border-radius:10px; padding:12px; font-family:monospace; font-size:0.75rem; color:#aaa; max-height:150px; overflow-y:auto; margin-top:10px; }
+        .btn-outline { background:transparent; border:1px solid var(--borda); color:#aaa; }
+        .info-box { background:rgba(41,182,246,0.1); border:1px solid var(--azul-c); border-radius:10px; padding:15px; margin:15px 0; font-size:0.85rem; color:#ade8ff; }
         .secao { display:none; }
         .secao.ativa { display:block; }
+        .log-box { font-family:monospace; font-size:0.75rem; background:#000; padding:12px; border-radius:8px; margin-top:10px; max-height:150px; overflow-y:auto; color:#888; border: 1px solid #1a1a2e; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="header-logo">TELE<span>ML</span></div>
-</div>
+<div class="header"><div class="header-logo">TELE<span>ML</span> — Corretor de NF-e</div></div>
 
 <div class="main">
-    <div class="steps">
-        <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">Config</div></div>
-        <div class="step" id="step2"><div class="step-num">2</div><div class="step-label">XML</div></div>
-        <div class="step" id="step3"><div class="step-num">3</div><div class="step-label">Corrigir</div></div>
-        <div class="step" id="step4"><div class="step-num">4</div><div class="step-label">Enviar</div></div>
-    </div>
-
-    <div class="secao ativa" id="secao1">
+    <div class="secao ativa" id="step1">
         <div class="card">
-            <div class="card-title">🔑 Configuração</div>
-            <input type="password" class="input-field" id="access-token" placeholder="Access Token (APP_USR-...)">
-            <input type="text" class="input-field" id="order-id" placeholder="Order ID (da URL do Mercado Livre)">
-            <button class="btn btn-primary" onclick="irParaXml()">Próximo Passo →</button>
+            <h3>🔑 Configuração</h3><br>
+            <input type="password" id="token" class="input-field" placeholder="Access Token">
+            <input type="text" id="order" class="input-field" placeholder="ID da Venda (URL)">
+            <button class="btn btn-primary" onclick="irPara(2)">Próximo →</button>
         </div>
     </div>
 
-    <div class="secao" id="secao2">
+    <div class="secao" id="step2">
         <div class="card">
-            <div class="card-title">📄 Selecionar XML</div>
-            <input type="file" id="xml-input" accept=".xml" onchange="carregarXml(this)" style="margin-bottom:20px">
-            <div id="info-xml" style="display:none" class="info-box"></div>
-            <button class="btn btn-primary" id="btn-buscar" onclick="buscarValorML()" disabled>🔍 Buscar Valor Real no ML</button>
-            <button class="btn btn-outline" onclick="irParaStep(1)">← Voltar</button>
+            <h3>📄 Upload XML</h3><br>
+            <input type="file" id="fileInput" accept=".xml" onchange="processarXml(this)" style="margin-bottom:20px">
+            <div id="preview" class="info-box" style="display:none"></div>
+            <button class="btn btn-primary" id="btn-fetch" onclick="buscarValor()" disabled>Buscar Valor no ML</button>
+            <button class="btn btn-outline" onclick="irPara(1)">Voltar</button>
         </div>
     </div>
 
-    <div class="secao" id="secao3">
+    <div class="secao" id="step3">
         <div class="card">
-            <div class="card-title">✏️ Conferência e Correção</div>
-            <div class="dados-grid">
-                <div class="dado-item"><div class="dado-label">Valor Original</div><div class="dado-valor red" id="v-orig">—</div></div>
-                <div class="dado-item"><div class="dado-label">Valor Real ML</div><div class="dado-valor green" id="v-real">—</div></div>
+            <h3>✏️ Conferência</h3><br>
+            <p>XML: <span id="v-xml" style="color:var(--vermelho)">—</span></p>
+            <p>Real ML: <span id="v-ml" style="color:var(--verde)">—</span></p>
+            <br>
+            <button class="btn btn-primary" onclick="corrigir()">✏️ Corrigir XML</button>
+            <div id="bloco-pos" style="display:none">
+                <button class="btn btn-success" onclick="baixar()">⬇️ BAIXAR XML AGORA</button>
+                <button class="btn btn-primary" onclick="irPara(4)">Ir para o Envio →</button>
             </div>
-            <button class="btn btn-primary" onclick="corrigirXml()">✏️ Gerar XML Corrigido</button>
-            <div id="bloco-download" style="display:none">
-                <div class="info-box" style="border-color: var(--verde); color: #fff">✅ XML Corrigido com sucesso!</div>
-                <button class="btn btn-success" onclick="baixarXml()">⬇️ Baixar XML para Conferir</button>
-                <button class="btn btn-primary" onclick="irParaStep(4)">🚀 Ir para o Envio →</button>
-            </div>
-            <button class="btn btn-outline" onclick="irParaStep(2)">← Voltar</button>
+            <button class="btn btn-outline" onclick="irPara(2)">Voltar</button>
         </div>
     </div>
 
-    <div class="secao" id="secao4">
+    <div class="secao" id="step4">
         <div class="card">
-            <div class="card-title">🚀 Envio Final</div>
-            <div id="status-envio" class="info-box">Pronto para enviar o XML corrigido.</div>
-            <button class="btn btn-success" id="btn-enviar" onclick="enviarML()">🚀 Enviar para o Mercado Livre</button>
-            <button class="btn btn-outline" onclick="baixarXml()">⬇️ Baixar XML novamente</button>
-            <button class="btn btn-outline" onclick="location.reload()">🔄 Reiniciar</button>
-            <div class="log-box" id="log-final">Aguardando comando...</div>
+            <h3>🚀 Envio Final</h3><br>
+            <button class="btn btn-success" id="btn-enviar" onclick="enviar()">🚀 ENVIAR PARA O ML</button>
+            <button class="btn btn-outline" onclick="baixar()">⬇️ Baixar XML novamente</button>
+            <div class="log-box" id="log-final">Aguardando...</div>
+            <button class="btn btn-outline" onclick="location.reload()" style="margin-top:20px">Reiniciar</button>
         </div>
     </div>
 </div>
 
 <script>
-const PROXY_URL = 'https://script.google.com/macros/s/AKfycbxrErjqzyIERF_5ETigcPuQ9-C3EXbKUko7swvWH9w05TgHMhWHSnH4gYq_ZqLuEV5i2A/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrErjqzyIERF_5ETigcPuQ9-C3EXbKUko7swvWH9w05TgHMhWHSnH4gYq_ZqLuEV5i2A/exec';
+    let db = { token: '', order: '', xml: '', xmlCorr: '', vXml: 0, vMl: 0, nome: '' };
 
-let dados = { token:'', orderId:'', xmlOrig:'', xmlCorr:'', vNF:0, vReal:0, nomeArq:'' };
-
-function irParaStep(n) {
-    document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-    document.getElementById('secao' + n).classList.add('ativa');
-    document.querySelectorAll('.step').forEach((s, i) => {
-        s.classList.remove('active', 'done');
-        if (i+1 < n) s.classList.add('done');
-        if (i+1 === n) s.classList.add('active');
-    });
-}
-
-function irParaXml() {
-    dados.token = document.getElementById('access-token').value.trim();
-    dados.orderId = document.getElementById('order-id').value.trim();
-    if(!dados.token || !dados.orderId) return alert("Preencha os campos!");
-    irParaStep(2);
-}
-
-function carregarXml(input) {
-    const file = input.files[0];
-    if(!file) return;
-    dados.nomeArq = file.name;
-    const reader = new FileReader();
-    reader.onload = e => {
-        dados.xmlOrig = e.target.result;
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(dados.xmlOrig, "text/xml");
-        const vNF = xmlDoc.querySelector('vNF');
-        dados.vNF = vNF ? parseFloat(vNF.textContent) : 0;
-        
-        document.getElementById('info-xml').style.display = 'block';
-        document.getElementById('info-xml').textContent = `Arquivo: ${file.name} | Valor: R$ ${dados.vNF.toFixed(2)}`;
-        document.getElementById('btn-buscar').disabled = false;
-    };
-    reader.readAsText(file);
-}
-
-async function buscarValorML() {
-    document.getElementById('btn-buscar').textContent = "⌛ Buscando...";
-    try {
-        const resp = await fetch(PROXY_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'buscar_pedido', token: dados.token, order_id: dados.orderId })
-        });
-        const json = await resp.json();
-        if(json.error) throw new Error(json.message);
-        
-        dados.vReal = parseFloat(json.total_amount);
-        document.getElementById('v-orig').textContent = "R$ " + dados.vNF.toFixed(2);
-        document.getElementById('v-real').textContent = "R$ " + dados.vReal.toFixed(2);
-        irParaStep(3);
-    } catch(e) {
-        alert("Erro ao buscar: " + e.message);
-    } finally {
-        document.getElementById('btn-buscar').textContent = "🔍 Buscar Valor Real no ML";
+    function irPara(n) {
+        document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+        document.getElementById('step' + n).classList.add('ativa');
+        if(n===1) { db.token = document.getElementById('token').value; db.order = document.getElementById('order').value; }
     }
-}
 
-function corrigirXml() {
-    let xml = dados.xmlOrig;
-    const vAntigo = dados.vNF.toFixed(2);
-    const vNovo = dados.vReal.toFixed(2);
-    
-    ['vProd','vUnCom','vUnTrib','vNF','vPag'].forEach(tag => {
-        const regex = new RegExp('<' + tag + '>' + vAntigo.replace('.', '\\.') + '</' + tag + '>', 'g');
-        xml = xml.replace(regex, '<' + tag + '>' + vNovo + '</' + tag + '>');
-    });
-    
-    dados.xmlCorr = xml;
-    document.getElementById('bloco-download').style.display = 'block';
-}
-
-function baixarXml() {
-    const blob = new Blob([dados.xmlCorr], {type: 'text/xml'});
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = "CORRIGIDO_" + dados.nomeArq;
-    link.click();
-}
-
-async function enviarML() {
-    const log = document.getElementById('log-final');
-    const btn = document.getElementById('btn-enviar');
-    btn.disabled = true;
-    log.textContent = "Iniciando envio...";
-    
-    try {
-        const b64 = btoa(unescape(encodeURIComponent(dados.xmlCorr)));
-        const resp = await fetch(PROXY_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'enviar_nfe',
-                token: dados.token,
-                pack_id: dados.orderId,
-                xml_base64: b64,
-                nome_arquivo: dados.nomeArq
-            })
-        });
-        
-        const res = await resp.json();
-        if(res.error) throw new Error(res.message || res.error);
-        
-        log.style.color = "#1D9E75";
-        log.textContent = "SUCESSO: Nota fiscal enviada ao Mercado Livre!";
-        document.getElementById('status-envio').textContent = "✅ Enviado com sucesso!";
-    } catch(e) {
-        log.style.color = "#ff6b6b";
-        log.textContent = "ERRO: " + e.message;
-        btn.disabled = false;
+    function processarXml(input) {
+        const f = input.files[0]; if(!f) return;
+        db.nome = f.name;
+        const r = new FileReader();
+        r.onload = e => {
+            db.xml = e.target.result;
+            const val = new DOMParser().parseFromString(db.xml, "text/xml").querySelector('vNF');
+            db.vXml = val ? parseFloat(val.textContent) : 0;
+            document.getElementById('preview').style.display = 'block';
+            document.getElementById('preview').textContent = `Arquivo: ${f.name} (R$ ${db.vXml.toFixed(2)})`;
+            document.getElementById('btn-fetch').disabled = false;
+        };
+        r.readAsText(f);
     }
-}
+
+    async function buscarValor() {
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'buscar_pedido', token: document.getElementById('token').value, order_id: document.getElementById('order').value })
+            });
+            const data = await res.json();
+            db.vMl = parseFloat(data.total_amount);
+            document.getElementById('v-xml').textContent = "R$ " + db.vXml.toFixed(2);
+            document.getElementById('v-ml').textContent = "R$ " + db.vMl.toFixed(2);
+            irPara(3);
+        } catch(e) { alert("Erro na conexão: Verifique se o Script do Google está publicado como 'Qualquer pessoa'."); }
+    }
+
+    function corrigir() {
+        let txt = db.xml;
+        const vA = db.vXml.toFixed(2);
+        const vN = db.vMl.toFixed(2);
+        ['vProd','vUnCom','vUnTrib','vNF','vPag'].forEach(t => {
+            const re = new RegExp('<' + t + '>' + vA.replace('.', '\\.') + '</' + t + '>', 'g');
+            txt = txt.replace(re, '<' + t + '>' + vN + '</' + t + '>');
+        });
+        db.xmlCorr = txt;
+        document.getElementById('bloco-pos').style.display = 'block';
+    }
+
+    function baixar() {
+        const blob = new Blob([db.xmlCorr], {type: 'text/xml'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = "CORRIGIDO_" + db.nome;
+        a.click();
+    }
+
+    async function enviar() {
+        const log = document.getElementById('log-final');
+        log.textContent = "Iniciando envio...";
+        try {
+            const b64 = btoa(unescape(encodeURIComponent(db.xmlCorr)));
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' }, // Evita problemas de pre-flight CORS
+                body: JSON.stringify({
+                    action: 'enviar_nfe',
+                    token: document.getElementById('token').value,
+                    pack_id: document.getElementById('order').value,
+                    xml_base64: b64,
+                    nome_arquivo: db.nome
+                })
+            });
+            const result = await response.json();
+            if(result.error) throw new Error(result.message);
+            log.style.color = "#1D9E75"; log.textContent = "✅ SUCESSO: Enviado ao Mercado Livre!";
+        } catch(e) {
+            log.style.color = "#ff6b6b"; 
+            log.textContent = "❌ ERRO: " + e.message + ". Verifique se o Order ID e o Token estão corretos.";
+        }
+    }
 </script>
 </body>
 </html>
