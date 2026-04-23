@@ -1,266 +1,200 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TELEML — Corretor de NF-e</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root {
-  --azul: #0d1f4e; --azul-m: #1565c0; --azul-c: #29b6f6;
-  --amarelo: #f5c518; --verde: #1D9E75; --vermelho: #ff6b6b;
-  --bg: #080f24; --card: rgba(255,255,255,0.04); --borda: rgba(41,182,246,0.15);
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'DM Sans',sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
-.header { background:rgba(13,31,78,0.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--borda); padding:14px 28px; display:flex; align-items:center; gap:14px; }
-.header-logo { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; color:#fff; }
-.header-logo span { color:var(--amarelo); }
-.header-badge { background:rgba(245,197,24,0.1); border:1px solid rgba(245,197,24,0.3); color:var(--amarelo); font-size:0.7rem; font-weight:700; padding:3px 10px; border-radius:20px; }
-.main { max-width:780px; margin:0 auto; padding:32px 20px 60px; }
-.steps { display:flex; gap:0; margin-bottom:32px; }
-.step { flex:1; display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:2px solid #1a1a2e; }
-.step.active { border-color:var(--azul-c); }
-.step.done { border-color:var(--verde); }
-.step-num { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700; background:#1a1a2e; color:#555; flex-shrink:0; }
-.step.active .step-num { background:var(--azul-c); color:#000; }
-.step.done .step-num { background:var(--verde); color:#fff; }
-.step-label { font-size:0.78rem; color:#444; font-weight:500; }
-.step.active .step-label { color:var(--azul-c); }
-.step.done .step-label { color:var(--verde); }
-.card { background:var(--card); border:1px solid var(--borda); border-radius:16px; padding:24px; margin-bottom:20px; }
-.card-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; color:#fff; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
-.card-sub { font-size:0.83rem; color:#555; margin-bottom:18px; }
-.input-group { margin-bottom:14px; }
-.input-group label { display:block; font-size:0.78rem; font-weight:600; color:#888; margin-bottom:6px; }
-.input-field { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:11px 14px; color:#fff; font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; transition:border-color 0.2s; }
-.input-field:focus { border-color:var(--azul-c); }
-.input-field::placeholder { color:#333; }
-.drop-zone { border:2px dashed rgba(41,182,246,0.25); border-radius:14px; padding:36px 20px; text-align:center; cursor:pointer; transition:all 0.2s; background:rgba(41,182,246,0.03); }
-.drop-zone:hover, .drop-zone.drag { border-color:var(--azul-c); background:rgba(41,182,246,0.08); }
-.drop-zone.loaded { border-color:var(--verde); background:rgba(29,158,117,0.06); }
-.drop-icon { font-size:2.4rem; margin-bottom:10px; }
-.drop-text { font-size:0.9rem; color:#888; }
-.drop-text strong { color:var(--azul-c); }
-.drop-name { font-size:0.85rem; color:var(--verde); font-weight:600; margin-top:8px; }
-.btn { width:100%; padding:14px; border-radius:12px; border:none; font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; cursor:pointer; transition:all 0.2s; letter-spacing:0.3px; text-decoration: none; display: inline-block; text-align: center; }
-.btn-primary { background:linear-gradient(135deg,var(--azul-m),var(--azul-c)); color:#fff; }
-.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(41,182,246,0.25); }
-.btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
-.btn-success { background:linear-gradient(135deg,#0d6e50,var(--verde)); color:#fff; }
-.btn-success:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(29,158,117,0.25); }
-.btn-outline { background:transparent; border:1px solid var(--borda); color:#888; margin-top:10px; }
-.btn-outline:hover { border-color:var(--azul-c); color:#fff; }
-.info-blue { border-radius:10px; padding:14px 16px; margin:14px 0; font-size:0.85rem; line-height:1.6; background:rgba(41,182,246,0.08); border:1px solid rgba(41,182,246,0.2); color:rgba(165,210,255,0.9); }
-.info-green { border-radius:10px; padding:14px 16px; margin:14px 0; font-size:0.85rem; line-height:1.6; background:rgba(29,158,117,0.08); border:1px solid rgba(29,158,117,0.2); color:rgba(100,220,170,0.9); }
-.info-red { border-radius:10px; padding:14px 16px; margin:14px 0; font-size:0.85rem; line-height:1.6; background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.2); color:rgba(255,160,160,0.9); }
-.info-yellow { border-radius:10px; padding:14px 16px; margin:14px 0; font-size:0.85rem; line-height:1.6; background:rgba(245,197,24,0.08); border:1px solid rgba(245,197,24,0.2); color:rgba(245,220,100,0.9); }
-.dados-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
-.dado-item { background:rgba(255,255,255,0.03); border:1px solid #1a1a2e; border-radius:10px; padding:12px 14px; }
-.dado-label { font-size:0.7rem; color:#444; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
-.dado-valor { font-size:0.95rem; color:#fff; font-weight:600; font-family:'Syne',sans-serif; }
-.dado-valor.green { color:var(--verde); }
-.dado-valor.blue { color:var(--azul-c); }
-.dado-valor.yellow { color:var(--amarelo); }
-.loading { display:none; text-align:center; padding:20px; }
-.loading.show { display:block; }
-.spinner { width:36px; height:36px; border:3px solid rgba(41,182,246,0.2); border-top-color:var(--azul-c); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
-@keyframes spin { to { transform:rotate(360deg); } }
-.log-box { background:#050a15; border:1px solid #1a1a2e; border-radius:10px; padding:14px; font-family:'Courier New',monospace; font-size:0.78rem; color:#666; max-height:220px; overflow-y:auto; margin-top:14px; }
-.log-line { margin-bottom:4px; }
-.log-line.ok { color:var(--verde); }
-.log-line.err { color:var(--vermelho); }
-.log-line.info { color:var(--azul-c); }
-.log-line.warn { color:var(--amarelo); }
-.resultado { display:none; }
-.resultado.show { display:block; }
-.secao { display:none; }
-.secao.ativa { display:block; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TELEML — Corretor de NF-e</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --azul-m: #1565c0; --azul-c: #29b6f6; --verde: #1D9E75; --vermelho: #ff6b6b;
+            --bg: #080f24; --card: rgba(255,255,255,0.04); --borda: rgba(41,182,246,0.15);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans', sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
+        .header { background:rgba(13,31,78,0.95); border-bottom:1px solid var(--borda); padding:15px 25px; display:flex; align-items:center; }
+        .header-logo { font-family:'Syne', sans-serif; font-size:1.2rem; font-weight:800; }
+        .header-logo span { color:#f5c518; }
+        .main { max-width:700px; margin:0 auto; padding:40px 20px; }
+        .card { background:var(--card); border:1px solid var(--borda); border-radius:16px; padding:25px; margin-bottom:20px; }
+        .input-field { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; color:#fff; margin-bottom:15px; outline:none; }
+        .btn { width:100%; padding:14px; border-radius:12px; border:none; font-family:'Syne', sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer; margin-bottom:10px; transition: 0.2s; text-decoration:none; display:block; text-align:center; }
+        .btn-primary { background:linear-gradient(135deg,var(--azul-m),var(--azul-c)); color:#fff; }
+        .btn-success { background:var(--verde); color:#fff; }
+        .btn-outline { background:transparent; border:1px solid var(--borda); color:#aaa; }
+        .info-box { background:rgba(41,182,246,0.1); border:1px solid var(--azul-c); border-radius:10px; padding:15px; margin:15px 0; font-size:0.85rem; color:#ade8ff; }
+        .secao { display:none; }
+        .secao.ativa { display:block; }
+        .log-box { font-family:monospace; font-size:0.75rem; background:#000; padding:12px; border-radius:8px; margin-top:10px; max-height:150px; overflow-y:auto; color:#888; border: 1px solid #1a1a2e; }
+    </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-logo">TELE<span>ML</span></div>
-  <div class="header-badge">Corretor de NF-e</div>
-</div>
+<div class="header"><div class="header-logo">TELE<span>ML</span> — Corretor de NF-e</div></div>
 
 <div class="main">
-  <div class="steps">
-    <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">Configurar</div></div>
-    <div class="step" id="step2"><div class="step-num">2</div><div class="step-label">XML</div></div>
-    <div class="step" id="step3"><div class="step-num">3</div><div class="step-label">Corrigir</div></div>
-    <div class="step" id="step4"><div class="step-num">4</div><div class="step-label">Enviar</div></div>
-  </div>
-
-  <div class="secao ativa" id="secao1">
-    <div class="card">
-      <div class="card-title">🔑 Configuração</div>
-      <div class="card-sub">Insira o Access Token do cliente e o Order ID.</div>
-      <div class="input-group">
-        <label>ACCESS TOKEN</label>
-        <input type="password" class="input-field" id="access-token" placeholder="APP_USR-xxxxx...">
-      </div>
-      <div class="input-group">
-        <label>ORDER ID (ID da URL)</label>
-        <input type="text" class="input-field" id="order-id" placeholder="Ex: 2000016044307672">
-      </div>
-      <div class="info-blue">💡 Copie o Order ID diretamente da URL da venda no Mercado Livre.</div>
-      <button class="btn btn-primary" onclick="irParaXml()">Continuar →</button>
-    </div>
-  </div>
-
-  <div class="secao" id="secao2">
-    <div class="card">
-      <div class="card-title">📄 Upload do XML</div>
-      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('xml-input').click()">
-        <div class="drop-icon">📁</div>
-        <div class="drop-text">Arraste o XML aqui ou <strong>clique para selecionar</strong></div>
-        <div class="drop-name" id="drop-name" style="display:none"></div>
-      </div>
-      <input type="file" id="xml-input" accept=".xml" style="display:none" onchange="carregarXml(this)">
-      <div id="dados-extraidos" style="display:none">
-        <div class="dados-grid">
-          <div class="dado-item"><div class="dado-label">Valor no XML</div><div class="dado-valor yellow" id="dado-valor-nf">—</div></div>
-          <div class="dado-item"><div class="dado-label">Pedido</div><div class="dado-valor blue" id="dado-pedido">—</div></div>
+    <div class="secao ativa" id="step1">
+        <div class="card">
+            <h3>🔑 Configuração</h3><br>
+            <input type="password" id="token" class="input-field" placeholder="Access Token (APP_USR-...)">
+            <input type="text" id="order" class="input-field" placeholder="ID da Venda (Order ID)">
+            <button class="btn btn-primary" onclick="irPara(2)">Próximo Passo →</button>
         </div>
-      </div>
-      <div class="loading" id="loading-buscar"><div class="spinner"></div><p>Buscando valor real...</p></div>
-      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
-        <button class="btn btn-primary" id="btn-buscar" onclick="buscarValorML()" disabled>🔍 Buscar Valor Real no ML</button>
-        <button class="btn btn-outline" onclick="irParaStep(1)">← Voltar</button>
-      </div>
     </div>
-  </div>
 
-  <div class="secao" id="secao3">
-    <div class="card">
-      <div class="card-title">✏️ Corrigir XML</div>
-      <div class="dados-grid">
-        <div class="dado-item"><div class="dado-label">❌ Valor Incorreto</div><div class="dado-valor" id="val-atual" style="color:var(--vermelho)">—</div></div>
-        <div class="dado-item"><div class="dado-label">✅ Valor Real</div><div class="dado-valor green" id="val-real">—</div></div>
-      </div>
-      <button class="btn btn-primary" onclick="corrigirXml()">✏️ Corrigir XML Agora</button>
-      <button class="btn btn-outline" onclick="irParaStep(2)">← Voltar</button>
+    <div class="secao" id="step2">
+        <div class="card">
+            <h3>📄 Upload do XML</h3><br>
+            <input type="file" id="fileInput" accept=".xml" onchange="processarXml(this)" style="margin-bottom:20px">
+            <div id="preview" class="info-box" style="display:none"></div>
+            <button class="btn btn-primary" id="btn-fetch" onclick="buscarValor()" disabled>🔍 Buscar Valor Real no ML</button>
+            <button class="btn btn-outline" onclick="irPara(1)">Voltar</button>
+        </div>
     </div>
-  </div>
 
-  <div class="secao" id="secao4">
-    <div class="card">
-      <div class="card-title">🚀 Envio Final</div>
-      <div class="loading" id="loading-enviar"><div class="spinner"></div><p>Enviando...</p></div>
-      <div class="log-box" id="log-enviar" style="display:none"></div>
-      <div class="resultado" id="resultado-ok"><div class="info-green">✅ Enviada com sucesso!</div></div>
-      <div class="resultado" id="resultado-erro"><div class="info-red">❌ Erro: <span id="msg-erro"></span></div></div>
-      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
-        <button class="btn btn-success" id="btn-enviar" onclick="enviarML()">🚀 Enviar para o Mercado Livre</button>
-        <button class="btn btn-outline" onclick="baixarXmlCorrigido()">⬇️ Baixar XML Corrigido</button>
-        <button class="btn btn-outline" onclick="location.reload()">🔄 Reiniciar</button>
-      </div>
+    <div class="secao" id="step3">
+        <div class="card">
+            <h3>✏️ Conferência</h3><br>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px">
+                <span>Valor Original:</span> <span id="v-xml" style="color:var(--vermelho)">—</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px">
+                <span>Valor Real ML:</span> <span id="v-ml" style="color:var(--verde)">—</span>
+            </div>
+            <button class="btn btn-primary" onclick="corrigir()">✏️ Gerar XML Corrigido</button>
+            <div id="bloco-pos" style="display:none">
+                <div class="info-box" style="border-color:var(--verde); color:#fff">✅ XML Corrigido com sucesso!</div>
+                <button class="btn btn-success" onclick="baixar()">⬇️ BAIXAR XML PARA CONFERIR</button>
+                <button class="btn btn-primary" onclick="irPara(4)">🚀 Ir para o Envio Final →</button>
+            </div>
+            <button class="btn btn-outline" onclick="irPara(2)">Voltar</button>
+        </div>
     </div>
-  </div>
+
+    <div class="secao" id="step4">
+        <div class="card">
+            <h3>🚀 Envio Final</h3><br>
+            <p style="font-size:0.85rem; color:#888; margin-bottom:15px">Clique abaixo para enviar a nota fiscal corrigida diretamente ao Mercado Livre.</p>
+            <button class="btn btn-success" id="btn-enviar" onclick="enviar()">🚀 ENVIAR AGORA</button>
+            <button class="btn btn-outline" onclick="baixar()">⬇️ Baixar XML corrigido novamente</button>
+            <div class="log-box" id="log-final">Aguardando comando...</div>
+            <button class="btn btn-outline" onclick="location.reload()" style="margin-top:20px">🔄 Reiniciar Processo</button>
+        </div>
+    </div>
 </div>
 
 <script>
-const PROXY_URL = 'https://script.google.com/macros/s/AKfycbxrErjqzyIERF_5ETigcPuQ9-C3EXbKUko7swvWH9w05TgHMhWHSnH4gYq_ZqLuEV5i2A/exec';
-let estado = { token: '', orderId: '', xmlOriginal: '', xmlCorrigido: '', xmlNome: '', valorNF: 0, valorReal: 0, packId: '' };
+    // URL do seu Script do Google
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrErjqzyIERF_5ETigcPuQ9-C3EXbKUko7swvWH9w05TgHMhWHSnH4gYq_ZqLuEV5i2A/exec';
+    
+    let db = { token: '', order: '', xml: '', xmlCorr: '', vXml: 0, vMl: 0, nome: '', packId: '' };
 
-function irParaStep(n) {
-  document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-  document.getElementById('secao' + n).classList.add('ativa');
-  document.querySelectorAll('.step').forEach((s, i) => {
-    s.classList.remove('active', 'done');
-    if (i + 1 < n) s.classList.add('done');
-    if (i + 1 === n) s.classList.add('active');
-  });
-}
+    function irPara(n) {
+        document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+        document.getElementById('step' + n).classList.add('ativa');
+        if(n===1) { db.token = document.getElementById('token').value; db.order = document.getElementById('order').value; }
+    }
 
-function irParaXml() {
-  estado.token = document.getElementById('access-token').value.trim();
-  estado.orderId = document.getElementById('order-id').value.trim();
-  if (estado.token && estado.orderId) irParaStep(2);
-  else alert('Preencha os campos!');
-}
+    function processarXml(input) {
+        const f = input.files[0]; if(!f) return;
+        db.nome = f.name;
+        const r = new FileReader();
+        r.onload = e => {
+            db.xml = e.target.result;
+            const val = new DOMParser().parseFromString(db.xml, "text/xml").querySelector('vNF');
+            db.vXml = val ? parseFloat(val.textContent) : 0;
+            document.getElementById('preview').style.display = 'block';
+            document.getElementById('preview').textContent = `Arquivo: ${f.name} | Valor XML: R$ ${db.vXml.toFixed(2)}`;
+            document.getElementById('btn-fetch').disabled = false;
+        };
+        r.readAsText(f);
+    }
 
-function carregarXml(input) {
-  const file = input.files[0];
-  if (!file) return;
-  estado.xmlNome = file.name;
-  const reader = new FileReader();
-  reader.onload = e => {
-    estado.xmlOriginal = e.target.result;
-    const doc = new DOMParser().parseFromString(estado.xmlOriginal, 'text/xml');
-    estado.valorNF = parseFloat(doc.querySelector('vNF')?.textContent || 0);
-    document.getElementById('dados-extraidos').style.display = 'block';
-    document.getElementById('dado-valor-nf').textContent = 'R$ ' + estado.valorNF.toFixed(2);
-    document.getElementById('btn-buscar').disabled = false;
-    document.getElementById('drop-name').textContent = '✅ ' + file.name;
-    document.getElementById('drop-name').style.display = 'block';
-  };
-  reader.readAsText(file);
-}
+    async function buscarValor() {
+        const btn = document.getElementById('btn-fetch');
+        btn.textContent = "Buscando..."; btn.disabled = true;
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'buscar_pedido', token: document.getElementById('token').value, order_id: document.getElementById('order').value })
+            });
+            const data = await res.json();
+            if(data.error) throw new Error(data.message);
+            db.vMl = parseFloat(data.total_amount);
+            db.packId = data.pack_id || data.id;
+            document.getElementById('v-xml').textContent = "R$ " + db.vXml.toFixed(2);
+            document.getElementById('v-ml').textContent = "R$ " + db.vMl.toFixed(2);
+            irPara(3);
+        } catch(e) { 
+            alert("Erro ao buscar valor: " + e.message); 
+            btn.disabled = false; btn.textContent = "Tentar novamente";
+        }
+    }
 
-async function buscarValorML() {
-  document.getElementById('loading-buscar').classList.add('show');
-  try {
-    const resp = await fetch(PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'buscar_pedido', token: estado.token, order_id: estado.orderId })
-    });
-    const data = await resp.json();
-    if (data.error) throw new Error(data.message);
-    estado.valorReal = data.total_amount;
-    estado.packId = data.pack_id || data.id;
-    document.getElementById('val-atual').textContent = 'R$ ' + estado.valorNF.toFixed(2);
-    document.getElementById('val-real').textContent = 'R$ ' + estado.valorReal.toFixed(2);
-    irParaStep(3);
-  } catch (e) { alert('Erro: ' + e.message); }
-  finally { document.getElementById('loading-buscar').classList.remove('show'); }
-}
+    function corrigir() {
+        let txt = db.xml;
+        const vA = db.vXml.toFixed(2);
+        const vN = db.vMl.toFixed(2);
+        ['vProd','vUnCom','vUnTrib','vNF','vPag'].forEach(t => {
+            const re = new RegExp('<' + t + '>' + vA.replace('.', '\\.') + '</' + t + '>', 'g');
+            txt = txt.replace(re, '<' + t + '>' + vN + '</' + t + '>');
+        });
+        db.xmlCorr = txt;
+        document.getElementById('bloco-pos').style.display = 'block';
+    }
 
-function corrigirXml() {
-  let xml = estado.xmlOriginal;
-  const vA = estado.valorNF.toFixed(2);
-  const vN = estado.valorReal.toFixed(2);
-  ['vProd','vUnCom','vUnTrib','vNF','vPag'].forEach(t => {
-    const re = new RegExp('<' + t + '>' + vA.replace('.', '\\.') + '</' + t + '>', 'g');
-    xml = xml.replace(re, '<' + t + '>' + vN + '</' + t + '>');
-  });
-  estado.xmlCorrigido = xml;
-  irParaStep(4);
-}
+    function baixar() {
+        const blob = new Blob([db.xmlCorr], {type: 'text/xml'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = "CORRIGIDO_" + db.nome;
+        a.click();
+    }
 
-async function enviarML() {
-  const log = document.getElementById('log-enviar');
-  log.style.display = 'block';
-  log.innerHTML = 'Enviando...';
-  document.getElementById('loading-enviar').classList.add('show');
-  try {
-    const b64 = btoa(unescape(encodeURIComponent(estado.xmlCorrigido)));
-    const resp = await fetch(PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'enviar_nfe', token: estado.token, pack_id: estado.packId, xml_base64: b64, nome_arquivo: estado.xmlNome })
-    });
-    const data = await resp.json();
-    if (data.error) throw new Error(data.message);
-    document.getElementById('resultado-ok').classList.add('show');
-    log.innerHTML = '<div class="log-line ok">Sucesso!</div>';
-  } catch (e) {
-    document.getElementById('resultado-erro').classList.add('show');
-    document.getElementById('msg-erro').textContent = e.message;
-    log.innerHTML = '<div class="log-line err">Erro: ' + e.message + '</div>';
-  } finally { document.getElementById('loading-enviar').classList.remove('show'); }
-}
+    async function enviar() {
+        const log = document.getElementById('log-final');
+        const btn = document.getElementById('btn-enviar');
+        log.textContent = "Preparando envio...";
+        btn.disabled = true;
 
-function baixarXmlCorrigido() {
-  const blob = new Blob([estado.xmlCorrigido], { type: 'text/xml' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'corrigido_' + estado.xmlNome;
-  a.click();
-}
+        try {
+            // Converte XML para Base64 de forma segura
+            const b64 = btoa(unescape(encodeURIComponent(db.xmlCorr)));
+            
+            log.textContent = "Enviando arquivo ao Proxy Google...";
+            
+            const payload = {
+                action: 'enviar_nfe',
+                token: document.getElementById('token').value,
+                pack_id: db.packId,
+                xml_base64: b64,
+                nome_arquivo: db.nome
+            };
+
+            // FETCH USANDO TEXT/PLAIN PARA EVITAR CORS
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            
+            if(result.error) {
+                throw new Error(result.message || result.error);
+            }
+
+            log.style.color = "#1D9E75";
+            log.textContent = "✅ SUCESSO! A nota fiscal foi enviada ao Mercado Livre.";
+            
+        } catch(e) {
+            console.error(e);
+            log.style.color = "#ff6b6b";
+            log.textContent = "❌ ERRO: " + e.message;
+            btn.disabled = false;
+        }
+    }
 </script>
 </body>
 </html>
