@@ -307,10 +307,18 @@ function extrairDadosXml(xml) {
 
 // ── BUSCAR VALOR VIA PROXY ──
 async function buscarValorML() {
-  if(!estado.pedidoId) { alert('Pedido não encontrado no XML!'); return; }
-  document.getElementById('btn-buscar').disabled = true;
-  document.getElementById('btn-buscar').textContent = '⏳ Buscando...';
-  document.getElementById('loading-buscar').classList.add('show');
+  // Verifica se a resposta existe e se tem algum ID ou valor
+if (!data || (!data.total_amount && !data.id && !data.pack_id)) {
+  throw new Error('Não foi possível obter os dados do pedido. Resposta: ' + JSON.stringify(data).substring(0,300));
+}
+
+// Se o total_amount for 0 ou indefinido, mas tivermos o objeto, tentamos seguir
+estado.valorReal = data.total_amount || 0; 
+estado.packId = data.pack_id || data.id;
+
+if (estado.valorReal === 0) {
+  console.warn("Aviso: O valor retornado pela API foi 0. Verifique se o pedido já foi pago ou se o token tem permissão.");
+}
 
   try {
     const resp = await fetch(PROXY_URL, {
