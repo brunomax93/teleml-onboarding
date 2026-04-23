@@ -1,175 +1,261 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TELEML — Corretor de NF-e</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --azul-m: #1565c0; --azul-c: #29b6f6; --verde: #1D9E75; --vermelho: #ff6b6b; --bg: #080f24; --card: rgba(255,255,255,0.04); --borda: rgba(41,182,246,0.15); }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'DM Sans', sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
-        .header { background:rgba(13,31,78,0.95); border-bottom:1px solid var(--borda); padding:15px 25px; }
-        .header-logo { font-family:'Syne', sans-serif; font-size:1.2rem; font-weight:800; }
-        .header-logo span { color:#f5c518; }
-        .main { max-width:700px; margin:0 auto; padding:40px 20px; }
-        .card { background:var(--card); border:1px solid var(--borda); border-radius:16px; padding:25px; margin-bottom:20px; }
-        .input-field { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; color:#fff; margin-bottom:15px; outline:none; }
-        .btn { width:100%; padding:14px; border-radius:12px; border:none; font-family:'Syne', sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer; margin-bottom:10px; transition: 0.2s; text-decoration:none; display:block; text-align:center; }
-        .btn-primary { background:linear-gradient(135deg,var(--azul-m),var(--azul-c)); color:#fff; }
-        .btn-success { background:var(--verde); color:#fff; }
-        .btn-outline { background:transparent; border:1px solid var(--borda); color:#aaa; }
-        .info-box { background:rgba(41,182,246,0.1); border:1px solid var(--azul-c); border-radius:10px; padding:15px; margin:15px 0; font-size:0.85rem; color:#ade8ff; }
-        .secao { display:none; }
-        .secao.ativa { display:block; }
-        .log-box { font-family:monospace; font-size:0.75rem; background:#000; padding:12px; border-radius:8px; margin-top:10px; max-height:150px; overflow-y:auto; color:#888; border: 1px solid #1a1a2e; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TELEML — Corretor de NF-e</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --azul-m: #1565c0; --azul-c: #29b6f6;
+    --verde: #1D9E75; --vermelho: #ff6b6b;
+    --bg: #080f24; --card: rgba(255,255,255,0.04);
+    --borda: rgba(41,182,246,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+    font-family:'DM Sans', sans-serif;
+    background:var(--bg);
+    color:#fff;
+}
+.header{
+    background:rgba(13,31,78,0.95);
+    padding:15px 25px;
+}
+.main{max-width:700px;margin:auto;padding:40px 20px;}
+.card{
+    background:var(--card);
+    border:1px solid var(--borda);
+    border-radius:16px;
+    padding:25px;
+    margin-bottom:20px;
+}
+.input-field{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    color:#fff;
+}
+.btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.btn-primary{background:linear-gradient(135deg,#1565c0,#29b6f6);}
+.btn-success{background:#1D9E75;}
+.btn-outline{background:none;border:1px solid #555;color:#aaa;}
+
+.secao{display:none;}
+.secao.ativa{display:block;}
+
+.dado-row{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+}
+.log{
+    background:#000;
+    padding:10px;
+    margin-top:10px;
+    font-size:12px;
+    color:#888;
+}
+</style>
 </head>
+
 <body>
 
-<div class="header"><div class="header-logo">TELE<span>ML</span> — Corretor</div></div>
+<div class="header">
+    <b>TELEML — Corretor de NF-e</b>
+</div>
 
 <div class="main">
-    <div class="secao ativa" id="step1">
-        <div class="card">
-            <h3>🔑 Configuração</h3><br>
-            <input type="password" id="token" class="input-field" placeholder="Access Token (APP_USR-...)">
-            <input type="text" id="order" class="input-field" placeholder="ID da Venda (Order ID)">
-            <button class="btn btn-primary" onclick="irPara(2)">Próximo →</button>
-        </div>
-    </div>
 
-    <div class="secao" id="step2">
-        <div class="card">
-            <h3>📄 Upload XML</h3><br>
-            <input type="file" id="fileInput" accept=".xml" onchange="processarXml(this)" style="margin-bottom:20px">
-            <div id="preview" class="info-box" style="display:none"></div>
-            <button class="btn btn-primary" id="btn-fetch" onclick="buscarValor()" disabled>Buscar Valor no ML</button>
-            <button class="btn btn-outline" onclick="irPara(1)">Voltar</button>
-        </div>
-    </div>
+<!-- STEP 1 -->
+<div class="secao ativa" id="step1">
+<div class="card">
+<h3>Configuração</h3><br>
 
-    <div class="secao" id="step3">
-        <div class="card">
-            <h3>✏️ Conferência</h3><br>
-            <p>XML: <span id="v-xml" style="color:var(--vermelho)">—</span></p>
-            <p>Real ML: <span id="v-ml" style="color:var(--verde)">—</span></p><br>
-            <button class="btn btn-primary" onclick="corrigir()">✏️ Corrigir XML</button>
-            <div id="bloco-pos" style="display:none">
-                <button class="btn btn-success" onclick="baixar()">⬇️ BAIXAR XML</button>
-                <button class="btn btn-primary" onclick="irPara(4)">Ir para o Envio →</button>
-            </div>
-            <button class="btn btn-outline" onclick="irPara(2)">Voltar</button>
-        </div>
-    </div>
+<input id="token" class="input-field" placeholder="Access Token">
+<input id="order" class="input-field" placeholder="Order ID">
 
-    <div class="secao" id="step4">
-        <div class="card">
-            <h3>🚀 Envio Final</h3><br>
-            <button class="btn btn-success" id="btn-enviar" onclick="enviar()">🚀 ENVIAR PARA O ML</button>
-            <div class="log-box" id="log-final">Aguardando...</div>
-            <button class="btn btn-outline" onclick="location.reload()" style="margin-top:20px">Reiniciar</button>
-        </div>
-    </div>
+<button class="btn btn-primary" onclick="proximo(2)">Continuar</button>
+</div>
+</div>
+
+<!-- STEP 2 -->
+<div class="secao" id="step2">
+<div class="card">
+<h3>Upload XML</h3><br>
+
+<input type="file" id="file" accept=".xml" onchange="lerXml(this)">
+
+<div id="preview"></div><br>
+
+<button id="btnFetch" class="btn btn-primary" onclick="buscar()">Buscar valor no ML</button>
+
+<button class="btn btn-outline" onclick="proximo(1)">Voltar</button>
+</div>
+</div>
+
+<!-- STEP 3 -->
+<div class="secao" id="step3">
+<div class="card">
+
+<h3>Conferência</h3><br>
+
+<div class="dado-row">
+<span>XML:</span>
+<span id="vxml"></span>
+</div>
+
+<div class="dado-row">
+<span>ML:</span>
+<span id="vml"></span>
+</div>
+
+<br>
+
+<button class="btn btn-primary" onclick="corrigir()">Corrigir XML</button>
+
+<button class="btn btn-success" onclick="baixar()">Baixar XML</button>
+
+<button class="btn btn-primary" onclick="proximo(4)">Ir para envio</button>
+
+</div>
+</div>
+
+<!-- STEP 4 -->
+<div class="secao" id="step4">
+<div class="card">
+
+<h3>Enviar</h3><br>
+
+<button class="btn btn-success" onclick="enviar()">ENVIAR NF</button>
+
+<div class="log" id="log"></div>
+
+<button class="btn btn-outline" onclick="location.reload()">Recomeçar</button>
+
+</div>
+</div>
+
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrErjqzyIERF_5ETigcPuQ9-C3EXbKUko7swvWH9w05TgHMhWHSnH4gYq_ZqLuEV5i2A/exec';
-    let db = { token: '', order: '', xml: '', xmlCorr: '', vXml: 0, vMl: 0, nome: '', packId: '' };
 
-    function irPara(n) {
-        document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-        document.getElementById('step' + n).classList.add('ativa');
-        if(n===1) { db.token = document.getElementById('token').value.trim(); db.order = document.getElementById('order').value.trim(); }
-    }
+const URL = "COLE_AQUI_SUA_WEBAPP";
 
-    function processarXml(input) {
-        const f = input.files[0]; if(!f) return;
-        db.nome = f.name;
-        const r = new FileReader();
-        r.onload = e => {
-            db.xml = e.target.result;
-            const val = new DOMParser().parseFromString(db.xml, "text/xml").querySelector('vNF');
-            db.vXml = val ? parseFloat(val.textContent) : 0;
-            document.getElementById('preview').style.display = 'block';
-            document.getElementById('preview').textContent = `Arquivo: ${f.name} (R$ ${db.vXml.toFixed(2)})`;
-            document.getElementById('btn-fetch').disabled = false;
-        };
-        r.readAsText(f);
-    }
+let app = {
+    xml:"",
+    xmlCorr:"",
+    vXml:0,
+    vMl:0,
+    nome:""
+};
 
-    async function buscarValor() {
-        const btn = document.getElementById('btn-fetch');
-        btn.textContent = "Buscando..."; btn.disabled = true;
-        try {
-            const res = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'buscar_pedido', token: db.token, order_id: db.order })
-            });
-            const data = await res.json();
-            
-            // PROTEÇÃO CONTRA NaN:
-            db.vMl = parseFloat(data.total_amount || data.amount || 0);
-            db.packId = data.pack_id || data.id; // IMPORTANTE: Captura o ID do pacote
+function proximo(n){
+    document.querySelectorAll(".secao").forEach(s=>s.classList.remove("ativa"));
+    document.getElementById("step"+n).classList.add("ativa");
+}
 
-            if (!db.vMl || isNaN(db.vMl)) {
-                throw new Error("Resposta inválida do ML. Verifique se o Token expirou.");
-            }
+function lerXml(input){
+    const f = input.files[0];
+    app.nome = f.name;
 
-            document.getElementById('v-xml').textContent = "R$ " + db.vXml.toFixed(2);
-            document.getElementById('v-ml').textContent = "R$ " + db.vMl.toFixed(2);
-            irPara(3);
-        } catch(e) { 
-            alert("Erro: " + e.message); 
-            btn.textContent = "Buscar Valor no ML"; btn.disabled = false;
+    const reader = new FileReader();
+    reader.onload = e=>{
+        app.xml = e.target.result;
+
+        const doc = new DOMParser().parseFromString(app.xml,"text/xml");
+        const vNF = doc.getElementsByTagName("vNF")[0];
+
+        app.vXml = vNF ? parseFloat(vNF.textContent) : 0;
+
+        document.getElementById("preview").innerHTML =
+            "Arquivo: "+f.name+" | Valor: R$ "+app.vXml.toFixed(2);
+    };
+    reader.readAsText(f);
+}
+
+async function buscar(){
+    const res = await fetch(URL,{
+        method:"POST",
+        body:JSON.stringify({
+            action:"buscar_pedido",
+            token:document.getElementById("token").value,
+            order_id:document.getElementById("order").value
+        })
+    });
+
+    const data = await res.json();
+
+    app.vMl = data.total_amount;
+
+    document.getElementById("vxml").innerText = "R$ "+app.vXml.toFixed(2);
+    document.getElementById("vml").innerText = "R$ "+app.vMl.toFixed(2);
+
+    proximo(3);
+}
+
+function corrigir(){
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(app.xml,"text/xml");
+
+    const tags = ["vProd","vNF","vPag"];
+
+    tags.forEach(tag=>{
+        const el = xmlDoc.getElementsByTagName(tag);
+        for(let i=0;i<el.length;i++){
+            el[i].textContent = app.vMl.toFixed(2);
         }
-    }
+    });
 
-    function corrigir() {
-        let txt = db.xml;
-        const vA = db.vXml.toFixed(2);
-        const vN = db.vMl.toFixed(2);
-        ['vProd','vUnCom','vUnTrib','vNF','vPag'].forEach(t => {
-            const re = new RegExp('<' + t + '>' + vA.replace('.', '\\.') + '</' + t + '>', 'g');
-            txt = txt.replace(re, '<' + t + '>' + vN + '</' + t + '>');
-        });
-        db.xmlCorr = txt;
-        document.getElementById('bloco-pos').style.display = 'block';
-    }
+    const serializer = new XMLSerializer();
+    app.xmlCorr = serializer.serializeToString(xmlDoc);
 
-    function baixar() {
-        const blob = new Blob([db.xmlCorr], {type: 'text/xml'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = "CORRIGIDO_" + db.nome;
-        a.click();
-    }
+    alert("XML corrigido!");
+}
 
-    async function enviar() {
-        const log = document.getElementById('log-final');
-        log.textContent = "Enviando com ID: " + db.packId + "...";
-        try {
-            const b64 = btoa(unescape(encodeURIComponent(db.xmlCorr)));
-            const res = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({
-                    action: 'enviar_nfe',
-                    token: db.token,
-                    pack_id: db.packId, // ENVIA O ID CORRETO
-                    xml_base64: b64,
-                    nome_arquivo: db.nome
-                })
-            });
-            const result = await res.json();
-            if(result.error) throw new Error(result.message);
-            log.style.color = "#1D9E75"; log.textContent = "✅ SUCESSO: Etiqueta deve liberar em breve!";
-        } catch(e) {
-            log.style.color = "#ff6b6b"; 
-            log.textContent = "❌ ERRO: " + e.message;
-        }
-    }
+function baixar(){
+    const blob = new Blob([app.xmlCorr], {type:"text/xml"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "corrigido.xml";
+    a.click();
+}
+
+async function enviar(){
+
+    const log = document.getElementById("log");
+
+    const b64 = btoa(unescape(encodeURIComponent(app.xmlCorr)));
+
+    const res = await fetch(URL,{
+        method:"POST",
+        body:JSON.stringify({
+            action:"enviar_nfe",
+            token:document.getElementById("token").value,
+            order_id:document.getElementById("order").value,
+            xml_base64:b64,
+            nome_arquivo:app.nome
+        })
+    });
+
+    const data = await res.json();
+
+    log.innerText = JSON.stringify(data,null,2);
+}
+
 </script>
+
 </body>
 </html>
