@@ -1,482 +1,294 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TELEML — Corretor de NF-e</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root {
-  --azul: #0d1f4e; --azul-m: #1565c0; --azul-c: #29b6f6;
-  --amarelo: #f5c518; --verde: #1D9E75; --vermelho: #ff6b6b;
-  --bg: #080f24; --card: rgba(255,255,255,0.04); --borda: rgba(41,182,246,0.15);
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'DM Sans',sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
-.header { background:rgba(13,31,78,0.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--borda); padding:14px 28px; display:flex; align-items:center; gap:14px; }
-.header-logo { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; color:#fff; }
-.header-logo span { color:var(--amarelo); }
-.header-badge { background:rgba(245,197,24,0.1); border:1px solid rgba(245,197,24,0.3); color:var(--amarelo); font-size:0.7rem; font-weight:700; padding:3px 10px; border-radius:20px; }
-.main { max-width:780px; margin:0 auto; padding:32px 20px 60px; }
-.steps { display:flex; gap:0; margin-bottom:32px; }
-.step { flex:1; display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:2px solid #1a1a2e; }
-.step.active { border-color:var(--azul-c); }
-.step.done { border-color:var(--verde); }
-.step-num { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700; background:#1a1a2e; color:#555; flex-shrink:0; }
-.step.active .step-num { background:var(--azul-c); color:#000; }
-.step.done .step-num { background:var(--verde); color:#fff; }
-.step-label { font-size:0.78rem; color:#444; font-weight:500; }
-.step.active .step-label { color:var(--azul-c); }
-.step.done .step-label { color:var(--verde); }
-.card { background:var(--card); border:1px solid var(--borda); border-radius:16px; padding:24px; margin-bottom:20px; }
-.card-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; color:#fff; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
-.card-sub { font-size:0.83rem; color:#555; margin-bottom:18px; }
-.input-group { margin-bottom:14px; }
-.input-group label { display:block; font-size:0.78rem; font-weight:600; color:#888; margin-bottom:6px; }
-.input-field { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:11px 14px; color:#fff; font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; transition:border-color 0.2s; }
-.input-field:focus { border-color:var(--azul-c); }
-.input-field::placeholder { color:#333; }
-.drop-zone { border:2px dashed rgba(41,182,246,0.25); border-radius:14px; padding:36px 20px; text-align:center; cursor:pointer; transition:all 0.2s; background:rgba(41,182,246,0.03); }
-.drop-zone:hover, .drop-zone.drag { border-color:var(--azul-c); background:rgba(41,182,246,0.08); }
-.drop-zone.loaded { border-color:var(--verde); background:rgba(29,158,117,0.06); }
-.drop-icon { font-size:2.4rem; margin-bottom:10px; }
-.drop-text { font-size:0.9rem; color:#888; }
-.drop-text strong { color:var(--azul-c); }
-.drop-name { font-size:0.85rem; color:var(--verde); font-weight:600; margin-top:8px; }
-.btn { width:100%; padding:14px; border-radius:12px; border:none; font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; cursor:pointer; transition:all 0.2s; letter-spacing:0.3px; }
-.btn-primary { background:linear-gradient(135deg,var(--azul-m),var(--azul-c)); color:#fff; }
-.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(41,182,246,0.25); }
-.btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
-.btn-success { background:linear-gradient(135deg,#0d6e50,var(--verde)); color:#fff; }
-.btn-success:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(29,158,117,0.25); }
-.btn-outline { background:transparent; border:1px solid var(--borda); color:#888; margin-top:10px; }
-.btn-outline:hover { border-color:var(--azul-c); color:#fff; }
-.info-box { border-radius:10px; padding:14px 16px; margin:14px 0; font-size:0.85rem; line-height:1.6; }
-.info-blue { background:rgba(41,182,246,0.08); border:1px solid rgba(41,182,246,0.2); color:rgba(165,210,255,0.9); }
-.info-green { background:rgba(29,158,117,0.08); border:1px solid rgba(29,158,117,0.2); color:rgba(100,220,170,0.9); }
-.info-red { background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.2); color:rgba(255,160,160,0.9); }
-.info-yellow { background:rgba(245,197,24,0.08); border:1px solid rgba(245,197,24,0.2); color:rgba(245,220,100,0.9); }
-.dados-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
-.dado-item { background:rgba(255,255,255,0.03); border:1px solid #1a1a2e; border-radius:10px; padding:12px 14px; }
-.dado-label { font-size:0.7rem; color:#444; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
-.dado-valor { font-size:0.95rem; color:#fff; font-weight:600; font-family:'Syne',sans-serif; }
-.dado-valor.green { color:var(--verde); }
-.dado-valor.blue { color:var(--azul-c); }
-.dado-valor.yellow { color:var(--amarelo); }
-.loading { display:none; text-align:center; padding:20px; }
-.loading.show { display:block; }
-.spinner { width:36px; height:36px; border:3px solid rgba(41,182,246,0.2); border-top-color:var(--azul-c); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
-@keyframes spin { to { transform:rotate(360deg); } }
-.loading-text { font-size:0.85rem; color:#666; }
-.log-box { background:#050a15; border:1px solid #1a1a2e; border-radius:10px; padding:14px; font-family:'Courier New',monospace; font-size:0.78rem; color:#666; max-height:220px; overflow-y:auto; margin-top:14px; }
-.log-line { margin-bottom:4px; }
-.log-line.ok { color:var(--verde); }
-.log-line.err { color:var(--vermelho); }
-.log-line.info { color:var(--azul-c); }
-.log-line.warn { color:var(--amarelo); }
-.resultado { display:none; }
-.resultado.show { display:block; }
-.secao { display:none; }
-.secao.ativa { display:block; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TELEML — Corretor de NF-e</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --azul: #0d1f4e; --azul-m: #1565c0; --azul-c: #29b6f6;
+            --amarelo: #f5c518; --verde: #1D9E75; --vermelho: #ff6b6b;
+            --bg: #080f24; --card: rgba(255,255,255,0.04); --borda: rgba(41,182,246,0.15);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans',sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
+        .header { background:rgba(13,31,78,0.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--borda); padding:14px 28px; display:flex; align-items:center; gap:14px; }
+        .header-logo { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; color:#fff; }
+        .header-logo span { color:var(--amarelo); }
+        .header-badge { background:rgba(245,197,24,0.1); border:1px solid rgba(245,197,24,0.3); color:var(--amarelo); font-size:0.7rem; font-weight:700; padding:3px 10px; border-radius:20px; }
+        .main { max-width:780px; margin:0 auto; padding:32px 20px 60px; }
+        .steps { display:flex; gap:0; margin-bottom:32px; }
+        .step { flex:1; display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:2px solid #1a1a2e; }
+        .step.active { border-color:var(--azul-c); }
+        .step.done { border-color:var(--verde); }
+        .step-num { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700; background:#1a1a2e; color:#555; flex-shrink:0; }
+        .step.active .step-num { background:var(--azul-c); color:#000; }
+        .step.done .step-num { background:var(--verde); color:#fff; }
+        .step-label { font-size:0.78rem; color:#444; font-weight:500; }
+        .step.active .step-label { color:var(--azul-c); }
+        .step.done .step-label { color:var(--verde); }
+        .card { background:var(--card); border:1px solid var(--borda); border-radius:16px; padding:24px; margin-bottom:20px; }
+        .card-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; color:#fff; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+        .card-sub { font-size:0.83rem; color:#555; margin-bottom:18px; }
+        .input-group { margin-bottom:14px; }
+        .input-group label { display:block; font-size:0.78rem; font-weight:600; color:#888; margin-bottom:6px; }
+        .input-field { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:11px 14px; color:#fff; font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; transition:border-color 0.2s; }
+        .input-field:focus { border-color:var(--azul-c); }
+        .input-field::placeholder { color:#333; }
+        .drop-zone { border:2px dashed rgba(41,182,246,0.25); border-radius:14px; padding:36px 20px; text-align:center; cursor:pointer; transition:all 0.2s; background:rgba(41,182,246,0.03); }
+        .drop-zone:hover, .drop-zone.drag { border-color:var(--azul-c); background:rgba(41,182,246,0.08); }
+        .drop-zone.loaded { border-color:var(--verde); background:rgba(29,158,117,0.06); }
+        .drop-icon { font-size:2.4rem; margin-bottom:10px; }
+        .drop-text { font-size:0.9rem; color:#888; }
+        .drop-text strong { color:var(--azul-c); }
+        .drop-name { font-size:0.85rem; color:var(--verde); font-weight:600; margin-top:8px; }
+        .btn { width:100%; padding:14px; border-radius:12px; border:none; font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; cursor:pointer; transition:all 0.2s; letter-spacing:0.3px; }
+        .btn-primary { background:linear-gradient(135deg,var(--azul-m),var(--azul-c)); color:#fff; }
+        .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(41,182,246,0.25); }
+        .btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+        .btn-success { background:linear-gradient(135deg,#0d6e50,var(--verde)); color:#fff; }
+        .btn-success:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(29,158,117,0.25); }
+        .btn-outline { background:transparent; border:1px solid var(--borda); color:#888; margin-top:10px; }
+        .btn-outline:hover { border-color:var(--azul-c); color:#fff; }
+        .info-box { border-radius:10px; padding:14px 16px; margin:14px 0; font-size:0.85rem; line-height:1.6; }
+        .info-blue { background:rgba(41,182,246,0.08); border:1px solid rgba(41,182,246,0.2); color:rgba(165,210,255,0.9); }
+        .info-green { background:rgba(29,158,117,0.08); border:1px solid rgba(29,158,117,0.2); color:rgba(100,220,170,0.9); }
+        .info-red { background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.2); color:rgba(255,160,160,0.9); }
+        .info-yellow { background:rgba(245,197,24,0.08); border:1px solid rgba(245,197,24,0.2); color:rgba(245,220,100,0.9); }
+        .dados-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
+        .dado-item { background:rgba(255,255,255,0.03); border:1px solid #1a1a2e; border-radius:10px; padding:12px 14px; }
+        .dado-label { font-size:0.7rem; color:#444; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+        .dado-valor { font-size:0.95rem; color:#fff; font-weight:600; font-family:'Syne',sans-serif; }
+        .dado-valor.green { color:var(--verde); }
+        .dado-valor.blue { color:var(--azul-c); }
+        .dado-valor.yellow { color:var(--amarelo); }
+        .loading { display:none; text-align:center; padding:20px; }
+        .loading.show { display:block; }
+        .spinner { width:36px; height:36px; border:3px solid rgba(41,182,246,0.2); border-top-color:var(--azul-c); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .loading-text { font-size:0.85rem; color:#666; }
+        .log-box { background:#050a15; border:1px solid #1a1a2e; border-radius:10px; padding:14px; font-family:'Courier New',monospace; font-size:0.78rem; color:#666; max-height:220px; overflow-y:auto; margin-top:14px; }
+        .log-line { margin-bottom:4px; }
+        .log-line.ok { color:var(--verde); }
+        .log-line.err { color:var(--vermelho); }
+        .log-line.info { color:var(--azul-c); }
+        .log-line.warn { color:var(--amarelo); }
+        .resultado { display:none; }
+        .resultado.show { display:block; }
+        .secao { display:none; }
+        .secao.ativa { display:block; }
+    </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-logo">TELE<span>ML</span></div>
-  <div class="header-badge">Corretor de NF-e</div>
+    <div class="header-logo">TELE<span>ML</span></div>
+    <div class="header-badge">Corretor de NF-e</div>
 </div>
 
 <div class="main">
-  <div class="steps">
-    <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">Configurar</div></div>
-    <div class="step" id="step2"><div class="step-num">2</div><div class="step-label">XML</div></div>
-    <div class="step" id="step3"><div class="step-num">3</div><div class="step-label">Corrigir</div></div>
-    <div class="step" id="step4"><div class="step-num">4</div><div class="step-label">Enviar</div></div>
-  </div>
-
-  <!-- STEP 1: TOKEN -->
-  <div class="secao ativa" id="secao1">
-    <div class="card">
-      <div class="card-title">🔑 Configuração</div>
-      <div class="card-sub">Insira o Access Token do cliente para buscar e enviar a NF-e.</div>
-      <div class="input-group">
-        <label>ACCESS TOKEN DO CLIENTE</label>
-        <input type="password" class="input-field" id="access-token" placeholder="APP_USR-xxxxx...">
-      </div>
-      <div class="input-group">
-        <label>ORDER ID DO PEDIDO (ID REAL DA API)</label>
-        <input type="text" class="input-field" id="order-id" placeholder="Ex: 2000016044307672">
-      </div>
-      <div class="info-blue">
-        💡 O Order ID aparece na URL do ML ao abrir a venda:<br>
-        <strong>mercadolivre.com.br/vendas/<u>2000016044307672</u>/detalhe</strong><br><br>
-        ⚠️ É diferente do número exibido na tela — copie direto da URL!
-      </div>
-      <div style="margin-top:16px">
-        <button class="btn btn-primary" onclick="irParaXml()">Continuar →</button>
-      </div>
+    <div class="steps">
+        <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">Configurar</div></div>
+        <div class="step" id="step2"><div class="step-num">2</div><div class="step-label">XML</div></div>
+        <div class="step" id="step3"><div class="step-num">3</div><div class="step-label">Corrigir</div></div>
+        <div class="step" id="step4"><div class="step-num">4</div><div class="step-label">Enviar</div></div>
     </div>
-  </div>
 
-  <!-- STEP 2: XML -->
-  <div class="secao" id="secao2">
-    <div class="card">
-      <div class="card-title">📄 Upload do XML da NF-e</div>
-      <div class="card-sub">Arraste o XML baixado do Bling ou clique para selecionar.</div>
-      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('xml-input').click()">
-        <div class="drop-icon">📁</div>
-        <div class="drop-text">Arraste o XML aqui ou <strong>clique para selecionar</strong></div>
-        <div class="drop-name" id="drop-name" style="display:none"></div>
-      </div>
-      <input type="file" id="xml-input" accept=".xml" style="display:none" onchange="carregarXml(this)">
-      <div id="dados-extraidos" style="display:none">
-        <div style="margin-top:16px;font-size:0.8rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Dados extraídos do XML</div>
-        <div class="dados-grid">
-          <div class="dado-item"><div class="dado-label">Número do Pedido ML</div><div class="dado-valor blue" id="dado-pedido">—</div></div>
-          <div class="dado-item"><div class="dado-label">Valor Atual na NF</div><div class="dado-valor yellow" id="dado-valor-nf">—</div></div>
-          <div class="dado-item"><div class="dado-label">Produto</div><div class="dado-valor" id="dado-produto" style="font-size:0.8rem">—</div></div>
-          <div class="dado-item"><div class="dado-label">Emitente</div><div class="dado-valor" id="dado-emitente" style="font-size:0.8rem">—</div></div>
+    <div class="secao ativa" id="secao1">
+        <div class="card">
+            <div class="card-title">🔑 Configuração</div>
+            <div class="card-sub">Insira o Access Token e o ID da venda.</div>
+            <div class="input-group">
+                <label>ACCESS TOKEN DO CLIENTE</label>
+                <input type="password" class="input-field" id="access-token" placeholder="APP_USR-xxxxx...">
+            </div>
+            <div class="input-group">
+                <label>ORDER ID OU PACK ID DA VENDA</label>
+                <input type="text" class="input-field" id="order-id" placeholder="Ex: 2000012574917691">
+            </div>
+            <div class="info-blue">
+                💡 Pegue o número direto da URL da venda no Mercado Livre.
+            </div>
+            <div style="margin-top:16px">
+                <button class="btn btn-primary" onclick="irParaXml()">Continuar →</button>
+            </div>
         </div>
-      </div>
-      <div class="loading" id="loading-buscar">
-        <div class="spinner"></div>
-        <div class="loading-text">Buscando valor real no Mercado Livre...</div>
-      </div>
-      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
-        <button class="btn btn-primary" id="btn-buscar" onclick="buscarValorML()" disabled>🔍 Buscar Valor Real no ML</button>
-        <button class="btn btn-outline" onclick="voltarStep(1)">← Voltar</button>
-      </div>
     </div>
-  </div>
 
-  <!-- STEP 3: CORRIGIR -->
-  <div class="secao" id="secao3">
-    <div class="card">
-      <div class="card-title">✏️ Corrigir Valor no XML</div>
-      <div class="card-sub">Substituindo o valor incorreto pelo valor real da venda.</div>
-      <div class="dados-grid">
-        <div class="dado-item" style="border-color:rgba(255,107,107,0.3)">
-          <div class="dado-label">❌ Valor Atual na NF</div>
-          <div class="dado-valor" id="val-atual" style="color:var(--vermelho)">—</div>
-          <div style="font-size:0.7rem;color:#444;margin-top:4px">valor incorreto</div>
-        </div>
-        <div class="dado-item" style="border-color:rgba(29,158,117,0.3)">
-          <div class="dado-label">✅ Valor Real da Venda</div>
-          <div class="dado-valor green" id="val-real">—</div>
-          <div style="font-size:0.7rem;color:#444;margin-top:4px">valor correto</div>
-        </div>
-      </div>
-      <div class="info-yellow">⚠️ <strong>Atenção:</strong> O XML será modificado como texto puro. A assinatura digital ficará inválida. Vamos testar a resposta do ML!</div>
-      <div class="log-box" id="log-corrigir" style="display:none"></div>
-      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
-        <button class="btn btn-primary" id="btn-corrigir" onclick="corrigirXml()">✏️ Corrigir XML Agora</button>
-        <button class="btn btn-outline" onclick="voltarStep(2)">← Voltar</button>
-      </div>
-    </div>
-  </div>
+    <div class="secao" id="secao2">
+        <div class="card">
+            <div class="card-title">📄 Upload do XML</div>
+            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('xml-input').click()">
+                <div class="drop-icon">📁</div>
+                <div class="drop-text">Arraste o XML aqui ou clique para selecionar</div>
+                <div class="drop-name" id="drop-name" style="display:none"></div>
+            </div>
+            <input type="file" id="xml-input" accept=".xml" style="display:none" onchange="carregarXml(this)">
+            
+            <div id="dados-extraidos" style="display:none">
+                <div class="dados-grid">
+                    <div class="dado-item"><div class="dado-label">Valor na NF</div><div class="dado-valor yellow" id="dado-valor-nf">—</div></div>
+                    <div class="dado-item"><div class="dado-label">Produto</div><div class="dado-valor" id="dado-produto">—</div></div>
+                </div>
+            </div>
 
-  <!-- STEP 4: ENVIAR -->
-  <div class="secao" id="secao4">
-    <div class="card">
-      <div class="card-title">🚀 Enviar NF-e para o ML</div>
-      <div class="card-sub">XML corrigido pronto. Enviando via proxy Apps Script.</div>
-      <div class="dados-grid">
-        <div class="dado-item"><div class="dado-label">Pedido</div><div class="dado-valor blue" id="env-pedido">—</div></div>
-        <div class="dado-item"><div class="dado-label">Valor Corrigido</div><div class="dado-valor green" id="env-valor">—</div></div>
-      </div>
-      <div class="loading" id="loading-enviar">
-        <div class="spinner"></div>
-        <div class="loading-text">Enviando para o Mercado Livre via proxy...</div>
-      </div>
-      <div class="log-box" id="log-enviar" style="display:none"></div>
-      <div class="resultado" id="resultado-ok">
-        <div class="info-green" style="text-align:center;padding:20px;">
-          <div style="font-size:2rem;margin-bottom:8px">✅</div>
-          <div style="font-weight:700;font-size:1rem;margin-bottom:4px">NF-e enviada com sucesso!</div>
-          <div style="font-size:0.83rem;opacity:0.8">A nota fiscal foi anexada automaticamente na venda do ML.</div>
+            <div class="loading" id="loading-buscar">
+                <div class="spinner"></div>
+                <div class="loading-text">Buscando valor real...</div>
+            </div>
+
+            <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px;">
+                <button class="btn btn-primary" id="btn-buscar" onclick="buscarValorML()" disabled>🔍 Buscar Valor Real no ML</button>
+                <button class="btn btn-outline" onclick="voltarStep(1)">← Voltar</button>
+            </div>
         </div>
-      </div>
-      <div class="resultado" id="resultado-erro">
-        <div class="info-red" style="text-align:center;padding:20px;">
-          <div style="font-size:2rem;margin-bottom:8px">❌</div>
-          <div style="font-weight:700;font-size:1rem;margin-bottom:4px">Erro ao enviar</div>
-          <div style="font-size:0.83rem;opacity:0.8" id="msg-erro">Erro desconhecido</div>
-        </div>
-      </div>
-      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
-        <button class="btn btn-success" id="btn-enviar" onclick="enviarML()">🚀 Enviar para o Mercado Livre</button>
-        <button class="btn btn-outline" onclick="baixarXmlCorrigido()">⬇️ Baixar XML Corrigido</button>
-        <button class="btn btn-outline" onclick="reiniciar()">🔄 Processar outro XML</button>
-      </div>
     </div>
-  </div>
+
+    <div class="secao" id="secao3">
+        <div class="card">
+            <div class="card-title">✏️ Corrigir XML</div>
+            <div class="dados-grid">
+                <div class="dado-item"><div class="dado-label">❌ Valor NF</div><div class="dado-valor" id="val-atual" style="color:var(--vermelho)">—</div></div>
+                <div class="dado-item"><div class="dado-label">✅ Valor Real</div><div class="dado-valor green" id="val-real">—</div></div>
+            </div>
+            <button class="btn btn-primary" onclick="corrigirXml()">✏️ Corrigir XML Agora</button>
+            <button class="btn btn-outline" onclick="voltarStep(2)">← Voltar</button>
+            <div class="log-box" id="log-corrigir" style="display:none"></div>
+        </div>
+    </div>
+
+    <div class="secao" id="secao4">
+        <div class="card">
+            <div class="card-title">🚀 Enviar para o Mercado Livre</div>
+            <div class="loading" id="loading-enviar">
+                <div class="spinner"></div>
+                <div class="loading-text">Enviando nota fiscal...</div>
+            </div>
+            <div id="resultado-ok" class="resultado"><div class="info-green">✅ NF-e enviada com sucesso!</div></div>
+            <div id="resultado-erro" class="resultado"><div class="info-red" id="msg-erro">❌ Erro ao enviar.</div></div>
+            <div class="log-box" id="log-enviar" style="display:none"></div>
+            <button class="btn btn-success" id="btn-enviar" onclick="enviarML()">🚀 Enviar para o Mercado Livre</button>
+            <button class="btn btn-outline" onclick="reiniciar()">🔄 Processar outro</button>
+        </div>
+    </div>
 </div>
 
 <script>
-// ── PROXY URL (Atualizado com o seu link do Apps Script) ──
 const PROXY_URL = 'https://script.google.com/macros/s/AKfycbxrErjqzyIERF_5ETigcPuQ9-C3EXbKUko7swvWH9w05TgHMhWHSnH4gYq_ZqLuEV5i2A/exec';
 
 let estado = {
-  token: '',
-  orderId: '',
-  xmlOriginal: '',
-  xmlCorrigido: '',
-  xmlNome: '',
-  pedidoId: '',
-  valorNF: 0,
-  valorReal: 0,
-  packId: ''
+    token: '', orderId: '', xmlOriginal: '', xmlCorrigido: '', xmlNome: '',
+    pedidoId: '', valorNF: 0, valorReal: 0, packId: ''
 };
 
-// ── NAVEGAÇÃO ──
 function irParaStep(n) {
-  document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-  document.getElementById('secao' + n).classList.add('ativa');
-  for(let i = 1; i <= 4; i++) {
-    const s = document.getElementById('step' + i);
-    s.classList.remove('active','done');
-    if(i < n) s.classList.add('done');
-    if(i === n) s.classList.add('active');
-  }
+    document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+    document.getElementById('secao' + n).classList.add('ativa');
+    for(let i=1; i<=4; i++) {
+        const s = document.getElementById('step' + i);
+        s.classList.remove('active','done');
+        if(i < n) s.classList.add('done');
+        if(i === n) s.classList.add('active');
+    }
 }
 function voltarStep(n) { irParaStep(n); }
 
 function irParaXml() {
-  const token = document.getElementById('access-token').value.trim();
-  const orderId = document.getElementById('order-id').value.trim();
-  if(!token) { alert('Informe o Access Token!'); return; }
-  if(!orderId) { alert('Informe o Order ID do pedido!'); return; }
-  estado.token = token;
-  estado.orderId = orderId;
-  irParaStep(2);
+    estado.token = document.getElementById('access-token').value.trim();
+    estado.orderId = document.getElementById('order-id').value.trim();
+    if(!estado.token || !estado.orderId) { alert('Preencha Token e ID!'); return; }
+    irParaStep(2);
 }
-
-// ── DRAG AND DROP ──
-const dz = document.getElementById('drop-zone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
-dz.addEventListener('drop', e => {
-  e.preventDefault(); dz.classList.remove('drag');
-  const file = e.dataTransfer.files[0];
-  if(file && file.name.endsWith('.xml')) processarArquivo(file);
-  else alert('Selecione um arquivo .xml');
-});
 
 function carregarXml(input) {
-  if(input.files[0]) processarArquivo(input.files[0]);
-}
-
-function processarArquivo(file) {
-  estado.xmlNome = file.name;
-  const reader = new FileReader();
-  reader.onload = e => {
-    estado.xmlOriginal = e.target.result;
-    extrairDadosXml(estado.xmlOriginal);
-    dz.classList.add('loaded');
-    document.getElementById('drop-name').style.display = 'block';
-    document.getElementById('drop-name').textContent = '✅ ' + file.name;
-    document.querySelector('.drop-text').textContent = 'XML carregado com sucesso!';
-    document.querySelector('.drop-icon').textContent = '✅';
-    document.getElementById('btn-buscar').disabled = false;
-  };
-  reader.readAsText(file, 'UTF-8');
+    if(!input.files[0]) return;
+    const file = input.files[0];
+    estado.xmlNome = file.name;
+    const reader = new FileReader();
+    reader.onload = e => {
+        estado.xmlOriginal = e.target.result;
+        extrairDadosXml(estado.xmlOriginal);
+        document.getElementById('drop-name').textContent = '✅ ' + file.name;
+        document.getElementById('drop-name').style.display = 'block';
+        document.getElementById('btn-buscar').disabled = false;
+    };
+    reader.readAsText(file);
 }
 
 function extrairDadosXml(xml) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(xml, 'text/xml');
-  let pedido = '';
-  const compra = doc.querySelector('compra xPed');
-  if(compra) pedido = compra.textContent.trim();
-  if(!pedido) {
-    const prodPed = doc.querySelector('prod xPed');
-    if(prodPed) pedido = prodPed.textContent.trim();
-  }
-  estado.pedidoId = pedido;
-  const vNF = doc.querySelector('vNF');
-  if(vNF) estado.valorNF = parseFloat(vNF.textContent);
-  const xProd = doc.querySelector('xProd');
-  const xNome = doc.querySelector('emit xNome');
-  document.getElementById('dados-extraidos').style.display = 'block';
-  document.getElementById('dado-pedido').textContent = pedido || 'Não encontrado';
-  document.getElementById('dado-valor-nf').textContent = 'R$ ' + estado.valorNF.toFixed(2).replace('.',',');
-  document.getElementById('dado-produto').textContent = (xProd ? xProd.textContent : '—').substring(0,40);
-  document.getElementById('dado-emitente').textContent = (xNome ? xNome.textContent : '—').substring(0,30);
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xml, 'text/xml');
+    const vNF = doc.querySelector('vNF');
+    const xProd = doc.querySelector('xProd');
+    estado.valorNF = vNF ? parseFloat(vNF.textContent) : 0;
+    document.getElementById('dados-extraidos').style.display = 'block';
+    document.getElementById('dado-valor-nf').textContent = 'R$ ' + estado.valorNF.toFixed(2).replace('.',',');
+    document.getElementById('dado-produto').textContent = xProd ? xProd.textContent.substring(0,30) : '—';
 }
 
 async function buscarValorML() {
-  if(!estado.orderId) { alert('Informe o Order ID!'); return; }
-  
-  document.getElementById('btn-buscar').disabled = true;
-  document.getElementById('loading-buscar').classList.add('show');
+    document.getElementById('btn-buscar').disabled = true;
+    document.getElementById('loading-buscar').classList.add('show');
+    try {
+        const resp = await fetch(PROXY_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'buscar_pedido', token: estado.token, order_id: estado.orderId })
+        });
+        const data = await resp.json();
+        if(data.error) throw new Error(data.message);
+        
+        estado.valorReal = parseFloat(data.total_amount);
+        estado.packId = data.pack_id || estado.orderId;
 
-  try {
-    const resp = await fetch(PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        action: 'buscar_pedido',
-        token: estado.token,
-        order_id: estado.orderId
-      })
-    });
-
-    const data = await resp.json();
-
-    if(data.error) throw new Error(data.message);
-
-    // Agora pegamos o valor que o Script v5 calculou
-    estado.valorReal = parseFloat(data.total_amount);
-    estado.packId = data.pack_id || estado.orderId;
-
-    if (estado.valorReal === 0) {
-      alert("Aviso: O valor retornado foi R$ 0,00. Verifique se o ID está correto.");
+        document.getElementById('val-atual').textContent = 'R$ ' + estado.valorNF.toFixed(2).replace('.',',');
+        document.getElementById('val-real').textContent = 'R$ ' + estado.valorReal.toFixed(2).replace('.',',');
+        
+        irParaStep(3);
+    } catch(e) {
+        alert('Erro: ' + e.message);
+    } finally {
+        document.getElementById('loading-buscar').classList.remove('show');
+        document.getElementById('btn-buscar').disabled = false;
     }
-
-    // Atualiza a tela com os R$ 327,15 (ou o valor que vier)
-    document.getElementById('val-atual').textContent = 'R$ ' + estado.valorNF.toFixed(2).replace('.',',');
-    document.getElementById('val-real').textContent = 'R$ ' + estado.valorReal.toFixed(2).replace('.',',');
-    
-    document.getElementById('loading-buscar').classList.remove('show');
-    irParaStep(3);
-
-  } catch(e) {
-    document.getElementById('loading-buscar').classList.remove('show');
-    document.getElementById('btn-buscar').disabled = false;
-    alert('Erro: ' + e.message);
-  }
 }
 
-// ── CORRIGIR XML ──
 function corrigirXml() {
-  const log = document.getElementById('log-corrigir');
-  log.style.display = 'block';
-  log.innerHTML = '';
-
-  const valorAntigo = estado.valorNF.toFixed(2);
-  const valorNovo = estado.valorReal.toFixed(2);
-
-  addLog(log, 'info', 'Valor atual: R$ ' + valorAntigo);
-  addLog(log, 'info', 'Valor real: R$ ' + valorNovo);
-  addLog(log, 'warn', 'Substituindo campos como texto puro...');
-
-  let xml = estado.xmlOriginal;
-  const campos = ['vProd','vUnCom','vUnTrib','vNF','vPag'];
-  let total = 0;
-  campos.forEach(campo => {
-    const regex = new RegExp('<' + campo + '>' + valorAntigo.replace('.', '\\.') + '</' + campo + '>', 'g');
-    const matches = xml.match(regex);
-    if(matches) {
-      xml = xml.replace(regex, '<' + campo + '>' + valorNovo + '</' + campo + '>');
-      total += matches.length;
-      addLog(log, 'ok', '✅ <' + campo + '> ' + valorAntigo + ' → ' + valorNovo);
-    }
-  });
-
-  addLog(log, 'info', total + ' substituições realizadas');
-  addLog(log, 'warn', '⚠️ Assinatura digital NÃO recalculada');
-  addLog(log, 'ok', 'XML corrigido em memória!');
-
-  estado.xmlCorrigido = xml;
-  document.getElementById('env-pedido').textContent = estado.pedidoId;
-  document.getElementById('env-valor').textContent = 'R$ ' + valorNovo.replace('.',',');
-
-  setTimeout(() => irParaStep(4), 1200);
-}
-
-// ── ENVIAR VIA PROXY ──
-async function enviarML() {
-  const loading = document.getElementById('loading-enviar');
-  const log = document.getElementById('log-enviar');
-  document.getElementById('btn-enviar').disabled = true;
-  loading.classList.add('show');
-  log.style.display = 'block';
-  log.innerHTML = '';
-
-  addLog(log, 'info', 'Pedido: ' + estado.pedidoId);
-  addLog(log, 'info', 'Pack ID: ' + estado.packId);
-  addLog(log, 'info', 'Convertendo XML para base64...');
-
-  try {
-    // Converter para base64
-    const xmlBase64 = btoa(unescape(encodeURIComponent(estado.xmlCorrigido)));
-    addLog(log, 'ok', 'Base64 gerado (' + xmlBase64.length + ' chars)');
-    addLog(log, 'info', 'Enviando via proxy Apps Script...');
-
-    const resp = await fetch(PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        action: 'enviar_nfe',
-        token: estado.token,
-        pack_id: estado.packId,
-        xml_base64: xmlBase64,
-        nome_arquivo: estado.xmlNome || 'nfe-corrigida.xml'
-      })
+    const vAntigo = estado.valorNF.toFixed(2);
+    const vNovo = estado.valorReal.toFixed(2);
+    let xml = estado.xmlOriginal;
+    ['vProd','vUnCom','vUnTrib','vNF','vPag'].forEach(campo => {
+        const regex = new RegExp('<' + campo + '>' + vAntigo.replace('.', '\\.') + '</' + campo + '>', 'g');
+        xml = xml.replace(regex, '<' + campo + '>' + vNovo + '</' + campo + '>');
     });
+    estado.xmlCorrigido = xml;
+    irParaStep(4);
+}
 
-    const text = await resp.text();
-    addLog(log, 'info', 'Resposta HTTP: ' + resp.status);
-    addLog(log, 'info', 'Resposta: ' + text.substring(0,300));
-
-    let data;
-    try { data = JSON.parse(text); } catch(e) { data = { raw: text }; }
-
-    loading.classList.remove('show');
-
-    if(resp.ok && !data.error && !data.message) {
-      addLog(log, 'ok', '✅ NF-e enviada com sucesso!');
-      document.getElementById('resultado-ok').classList.add('show');
-    } else {
-      const msg = data.message || data.error || text.substring(0,200);
-      addLog(log, 'err', '❌ ' + msg);
-      document.getElementById('msg-erro').textContent = msg;
-      document.getElementById('resultado-erro').classList.add('show');
+async function enviarML() {
+    document.getElementById('btn-enviar').disabled = true;
+    document.getElementById('loading-enviar').classList.add('show');
+    try {
+        const xmlBase64 = btoa(unescape(encodeURIComponent(estado.xmlCorrigido)));
+        const resp = await fetch(PROXY_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'enviar_nfe', token: estado.token, pack_id: estado.packId,
+                xml_base64: xmlBase64, nome_arquivo: estado.xmlNome
+            })
+        });
+        const data = await resp.json();
+        if(data.error || data.message) throw new Error(data.message || data.error);
+        document.getElementById('resultado-ok').classList.add('show');
+    } catch(e) {
+        document.getElementById('msg-erro').textContent = 'Erro: ' + e.message;
+        document.getElementById('resultado-erro').classList.add('show');
+    } finally {
+        document.getElementById('loading-enviar').classList.remove('show');
     }
-  } catch(e) {
-    loading.classList.remove('show');
-    addLog(log, 'err', '❌ ' + e.message);
-    document.getElementById('msg-erro').textContent = e.message;
-    document.getElementById('resultado-erro').classList.add('show');
-  }
-
-  document.getElementById('btn-enviar').disabled = false;
 }
 
-// ── BAIXAR XML ──
-function baixarXmlCorrigido() {
-  const blob = new Blob([estado.xmlCorrigido], { type:'text/xml' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'nfe-corrigida.xml'; a.click();
-  URL.revokeObjectURL(url);
-}
-
-// ── REINICIAR ──
-function reiniciar() {
-  estado = { token:estado.token, orderId:estado.orderId, xmlOriginal:'', xmlCorrigido:'', xmlNome:'', pedidoId:'', valorNF:0, valorReal:0, packId:'', orderIdReal:'' };
-  document.getElementById('xml-input').value = '';
-  document.getElementById('drop-zone').className = 'drop-zone';
-  document.querySelector('.drop-text').innerHTML = 'Arraste o XML aqui ou <strong>clique para selecionar</strong>';
-  document.querySelector('.drop-icon').textContent = '📁';
-  document.getElementById('drop-name').style.display = 'none';
-  document.getElementById('dados-extraidos').style.display = 'none';
-  document.getElementById('btn-buscar').disabled = true;
-  document.getElementById('resultado-ok').classList.remove('show');
-  document.getElementById('resultado-erro').classList.remove('show');
-  document.getElementById('log-enviar').style.display = 'none';
-  irParaStep(2);
-}
-
-// ── LOG ──
-function addLog(box, tipo, msg) {
-  const line = document.createElement('div');
-  line.className = 'log-line ' + tipo;
-  line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
-  box.appendChild(line);
-  box.scrollTop = box.scrollHeight;
-}
+function reiniciar() { window.location.reload(); }
 </script>
 </body>
 </html>
