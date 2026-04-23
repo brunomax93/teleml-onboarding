@@ -1,248 +1,429 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TELEML — Corretor de NF-e</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --azul-m: #1565c0; --azul-c: #29b6f6; --verde: #1D9E75; --vermelho: #ff6b6b;
-            --bg: #080f24; --card: rgba(255,255,255,0.04); --borda: rgba(41,182,246,0.15);
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'DM Sans', sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
-        .header { background:rgba(13,31,78,0.95); border-bottom:1px solid var(--borda); padding:15px 25px; display:flex; align-items:center; }
-        .header-logo { font-family:'Syne', sans-serif; font-size:1.2rem; font-weight:800; }
-        .header-logo span { color:#f5c518; }
-        .main { max-width:700px; margin:0 auto; padding:40px 20px; }
-        .card { background:var(--card); border:1px solid var(--borda); border-radius:16px; padding:25px; margin-bottom:20px; }
-        .step-indicator { display:flex; justify-content:space-between; margin-bottom:30px; font-size:0.8rem; color:#666; font-weight:bold; }
-        .step-indicator .active { color:var(--azul-c); }
-        label { font-size:0.75rem; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px; }
-        .input-field { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; color:#fff; margin-bottom:15px; outline:none; font-family:'DM Sans',sans-serif; font-size:0.9rem; }
-        .input-field::placeholder { color:#444; }
-        .btn { width:100%; padding:14px; border-radius:12px; border:none; font-family:'Syne', sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer; margin-bottom:10px; transition:0.2s; }
-        .btn-primary { background:linear-gradient(135deg,var(--azul-m),var(--azul-c)); color:#fff; }
-        .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
-        .btn-success { background:var(--verde); color:#fff; }
-        .btn-outline { background:transparent; border:1px solid var(--borda); color:#aaa; }
-        .info-box { background:rgba(41,182,246,0.08); border:1px solid var(--azul-c); border-radius:10px; padding:15px; margin:15px 0; font-size:0.85rem; color:#ade8ff; line-height:1.7; }
-        .info-warn { background:rgba(245,197,24,0.08); border:1px solid rgba(245,197,24,0.4); color:#f5e07a; }
-        .info-ok { background:rgba(29,158,117,0.08); border:1px solid var(--verde); color:#7ee8c0; }
-        .dado-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.9rem; }
-        .secao { display:none; }
-        .secao.ativa { display:block; animation:fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        .spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.2); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; margin-right:8px; vertical-align:middle; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TELEML — Gerador de NF-e</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --azul-m:#1565c0; --azul-c:#29b6f6; --verde:#1D9E75; --vermelho:#ff6b6b;
+  --amarelo:#f5c518; --bg:#080f24; --card:rgba(255,255,255,0.04); --borda:rgba(41,182,246,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#fff;min-height:100vh;}
+.header{background:rgba(13,31,78,0.95);border-bottom:1px solid var(--borda);padding:15px 25px;display:flex;align-items:center;justify-content:space-between;}
+.header-logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;}
+.header-logo span{color:var(--amarelo);}
+.header-user{font-size:0.8rem;color:#888;display:flex;align-items:center;gap:12px;}
+.btn-logout{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:var(--vermelho);padding:5px 12px;border-radius:8px;cursor:pointer;font-size:0.75rem;font-family:'DM Sans',sans-serif;}
+.main{max-width:700px;margin:0 auto;padding:40px 20px;}
+.card{background:var(--card);border:1px solid var(--borda);border-radius:16px;padding:25px;margin-bottom:20px;}
+.card-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px;}
+.input-field{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;margin-bottom:15px;outline:none;font-family:'DM Sans',sans-serif;font-size:0.9rem;transition:border-color 0.2s;}
+.input-field:focus{border-color:var(--azul-c);}
+.input-field::placeholder{color:#333;}
+.btn{width:100%;padding:14px;border-radius:12px;border:none;font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;margin-bottom:10px;transition:0.2s;}
+.btn-primary{background:linear-gradient(135deg,var(--azul-m),var(--azul-c));color:#fff;}
+.btn-primary:hover{opacity:0.9;transform:translateY(-1px);}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.btn-success{background:var(--verde);color:#fff;}
+.btn-success:hover{opacity:0.9;}
+.btn-outline{background:transparent;border:1px solid var(--borda);color:#aaa;}
+.btn-outline:hover{border-color:var(--azul-c);color:#fff;}
+.info-box{border-radius:10px;padding:14px;margin:12px 0;font-size:0.85rem;line-height:1.7;}
+.info-blue{background:rgba(41,182,246,0.08);border:1px solid rgba(41,182,246,0.25);color:#ade8ff;}
+.info-green{background:rgba(29,158,117,0.08);border:1px solid var(--verde);color:#7ee8c0;}
+.info-red{background:rgba(255,107,107,0.08);border:1px solid var(--vermelho);color:#ffaaaa;}
+.info-yellow{background:rgba(245,197,24,0.08);border:1px solid rgba(245,197,24,0.4);color:#f5e07a;}
+.dado-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.9rem;}
+.dado-row:last-child{border-bottom:none;}
+.dado-label{color:#888;}
+.dado-valor{font-weight:700;}
+.pct-container{margin:16px 0;}
+.pct-value{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:var(--amarelo);text-align:center;margin-bottom:8px;}
+.pct-slider{width:100%;height:6px;border-radius:3px;outline:none;-webkit-appearance:none;background:linear-gradient(to right,var(--azul-c) 0%,var(--azul-c) 50%,rgba(255,255,255,0.1) 50%);}
+.pct-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--amarelo);cursor:pointer;box-shadow:0 2px 8px rgba(245,197,24,0.4);}
+.pct-labels{display:flex;justify-content:space-between;font-size:0.75rem;color:#444;margin-top:6px;}
+.calc-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin:14px 0;}
+.calc-row{display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;}
+.calc-row:last-child{margin-bottom:0;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;margin-top:8px;}
+.log{font-family:monospace;font-size:0.75rem;background:#000;padding:12px;border-radius:8px;margin-top:12px;max-height:120px;overflow-y:auto;color:#666;line-height:1.6;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.step-indicator{display:flex;justify-content:space-between;margin-bottom:30px;font-size:0.78rem;color:#444;font-weight:700;}
+.step-indicator .active{color:var(--azul-c);}
+.step-indicator .done{color:var(--verde);}
+.secao{display:none;}
+.secao.ativa{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+</style>
 </head>
 <body>
 
-<div class="header"><div class="header-logo">TELE<span>ML</span> — Corretor de NF-e</div></div>
+<div class="header">
+  <div class="header-logo">TELE<span>ML</span> — Gerador NF-e</div>
+  <div class="header-user">
+    <span id="header-nome" style="display:none"></span>
+    <button class="btn-logout" id="btn-logout" onclick="logout()" style="display:none">Sair</button>
+  </div>
+</div>
 
 <div class="main">
+
+  <!-- LOGIN -->
+  <div class="secao ativa" id="tela-login">
+    <div class="card">
+      <div class="card-title">🔐 Acesso ao Sistema</div>
+      <label>USUÁRIO</label>
+      <input type="text" id="login-usuario" class="input-field" placeholder="Digite seu usuário" onkeydown="if(event.key==='Enter')fazerLogin()">
+      <label>SENHA</label>
+      <input type="password" id="login-senha" class="input-field" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()">
+      <div id="login-erro" class="info-red" style="display:none"></div>
+      <button class="btn btn-primary" id="btn-login" onclick="fazerLogin()">Entrar →</button>
+    </div>
+  </div>
+
+  <!-- PAINEL ADM -->
+  <div class="secao" id="tela-adm">
+    <div class="card">
+      <div class="card-title">👑 Painel Administrador</div>
+      <div class="info-blue">Bem-vindo, Administrador! Gerencie os clientes do sistema.</div>
+      <br>
+      <div class="dado-row"><span class="dado-label">Clientes ativos:</span><span class="dado-valor" id="adm-total-clientes">—</span></div>
+      <br>
+      <div id="adm-lista-clientes"></div>
+    </div>
+  </div>
+
+  <!-- PAINEL CLIENTE -->
+  <div class="secao" id="tela-cliente">
+    
     <div class="step-indicator">
-        <span id="ind1" class="active">1. CONFIG</span>
-        <span id="ind2">2. XML</span>
-        <span id="ind3">3. CORREÇÃO</span>
-        <span id="ind4">4. DOWNLOAD</span>
+      <span id="ind1" class="active">1. PEDIDO</span>
+      <span id="ind2">2. PERCENTUAL</span>
+      <span id="ind3">3. GERAR NF-e</span>
+      <span id="ind4">4. DOWNLOAD</span>
     </div>
 
-    <!-- STEP 1 -->
+    <!-- STEP 1: BUSCAR PEDIDO -->
     <div class="secao ativa" id="step1">
-        <div class="card">
-            <h3 style="margin-bottom:20px">⚙️ Configurações</h3>
-            <label>ACCESS TOKEN DO CLIENTE</label>
-            <input type="password" id="token" class="input-field" placeholder="APP_USR-xxxxx...">
-            <label>PACK ID DA VENDA</label>
-            <input type="text" id="pack-id" class="input-field" placeholder="Ex: 2000012574917691">
-            <div class="info-box">
-                💡 O Pack ID é o número que aparece na venda do ML e na nota fiscal.<br>
-                Exemplo: <strong>#2000012574917691</strong>
-            </div>
-            <button class="btn btn-primary" onclick="irStep2()">Continuar →</button>
-        </div>
+      <div class="card">
+        <div class="card-title">🔍 Buscar Pedido</div>
+        <label>ID DO PEDIDO NO OLIST</label>
+        <input type="text" id="id-pedido" class="input-field" placeholder="Ex: 928687831" onkeydown="if(event.key==='Enter')buscarPedido()">
+        <div class="info-blue">💡 Encontre o ID na URL do Olist:<br><strong>erp.olist.com/vendas#edit/<u>928687831</u></strong></div>
+        <button class="btn btn-primary" id="btn-buscar" onclick="buscarPedido()">🔍 Buscar Pedido</button>
+      </div>
     </div>
 
-    <!-- STEP 2 -->
+    <!-- STEP 2: PERCENTUAL -->
     <div class="secao" id="step2">
-        <div class="card">
-            <h3 style="margin-bottom:20px">📄 Upload da NF-e</h3>
-            <label>SELECIONE O XML BAIXADO DO BLING</label>
-            <input type="file" id="file" accept=".xml" onchange="lerXml(this)" style="margin-bottom:20px; color:#aaa;">
-            <div id="preview-xml" class="info-box" style="display:none"></div>
-            <button class="btn btn-primary" id="btn-fetch" onclick="buscarNoML()" disabled>🔍 Buscar Valor Real no ML</button>
-            <button class="btn btn-outline" onclick="irStep(1)">← Voltar</button>
+      <div class="card">
+        <div class="card-title">📋 Dados do Pedido</div>
+        <div id="dados-pedido"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Porcentagem da Nota</div>
+        <p style="font-size:0.85rem;color:#888;margin-bottom:16px">Selecione qual percentual do valor real será emitido na NF-e:</p>
+        <div class="pct-container">
+          <div class="pct-value" id="pct-display">50%</div>
+          <input type="range" class="pct-slider" id="pct-slider" min="10" max="90" value="50" step="5" oninput="atualizarPct(this.value)">
+          <div class="pct-labels"><span>10%</span><span>50%</span><span>90%</span></div>
         </div>
+        <div class="calc-box">
+          <div class="calc-row"><span style="color:#888">Valor real do pedido:</span><span style="color:#fff" id="calc-real">—</span></div>
+          <div class="calc-row"><span style="color:#888">Percentual selecionado:</span><span style="color:var(--amarelo)" id="calc-pct">50%</span></div>
+          <div class="calc-row"><span style="color:#888">Valor da NF-e:</span><span style="color:var(--verde);font-size:1.1rem" id="calc-nf">—</span></div>
+          <div class="calc-row"><span style="color:#888">Corretor vai dobrar para:</span><span style="color:var(--azul-c)" id="calc-dobro">—</span></div>
+        </div>
+        <button class="btn btn-primary" onclick="irStep(3)">Confirmar e Gerar NF-e →</button>
+        <button class="btn btn-outline" onclick="irStep(1)">← Voltar</button>
+      </div>
     </div>
 
-    <!-- STEP 3 -->
+    <!-- STEP 3: GERANDO -->
     <div class="secao" id="step3">
-        <div class="card">
-            <h3 style="margin-bottom:20px">✏️ Conferir e Corrigir</h3>
-            <div class="dado-row">
-                <span>❌ Valor Original (XML):</span>
-                <span id="v-xml" style="color:var(--vermelho);font-weight:700">—</span>
-            </div>
-            <div class="dado-row">
-                <span>✅ Valor Real (ML):</span>
-                <span id="v-ml" style="color:var(--verde);font-weight:700">—</span>
-            </div>
-            <div class="dado-row">
-                <span>🆔 Order ID (interno):</span>
-                <span id="v-order" style="color:#888;font-size:0.8rem">—</span>
-            </div>
-            <div class="dado-row">
-                <span>📦 Pack ID:</span>
-                <span id="v-pack" style="color:#888;font-size:0.8rem">—</span>
-            </div>
-            <div class="info-warn" style="margin-top:16px;border-radius:10px;padding:14px;">
-                ⚠️ O XML será alterado como texto puro. A assinatura digital ficará inválida.
-            </div>
-            <br>
-            <button class="btn btn-primary" onclick="gerarXmlCorrigido()">✏️ Corrigir XML Agora</button>
-            <div id="pos-correcao" style="display:none">
-                <div class="info-ok" style="border-radius:10px;padding:14px;margin-top:10px">
-                    ✅ XML corrigido! Valor <strong id="v-corr-antigo"></strong> substituído por <strong id="v-corr-novo"></strong>
-                </div>
-                <button class="btn btn-success" onclick="irStep(4)" style="margin-top:10px">Continuar →</button>
-            </div>
-            <button class="btn btn-outline" onclick="irStep(2)">← Voltar</button>
-        </div>
+      <div class="card">
+        <div class="card-title">⚙️ Gerando NF-e</div>
+        <div class="dado-row"><span class="dado-label">Pedido:</span><span class="dado-valor" id="gen-pedido">—</span></div>
+        <div class="dado-row"><span class="dado-label">Valor real:</span><span class="dado-valor" id="gen-real">—</span></div>
+        <div class="dado-row"><span class="dado-label">Percentual:</span><span class="dado-valor" style="color:var(--amarelo)" id="gen-pct">—</span></div>
+        <div class="dado-row"><span class="dado-label">Valor da NF-e:</span><span class="dado-valor" style="color:var(--verde)" id="gen-nf">—</span></div>
+        <br>
+        <button class="btn btn-success" id="btn-gerar" onclick="gerarNFe()">🚀 Gerar NF-e Agora</button>
+        <div class="log" id="log-gerar">Aguardando comando...</div>
+        <button class="btn btn-outline" onclick="irStep(2)">← Voltar</button>
+      </div>
     </div>
 
-    <!-- STEP 4 -->
+    <!-- STEP 4: DOWNLOAD -->
     <div class="secao" id="step4">
-        <div class="card">
-            <h3 style="margin-bottom:20px">⬇️ Download do XML Corrigido</h3>
-            <div class="dado-row"><span>Pack ID:</span><span id="dl-pack" style="color:var(--azul-c)">—</span></div>
-            <div class="dado-row"><span>Order ID:</span><span id="dl-order" style="color:#888;font-size:0.8rem">—</span></div>
-            <div class="dado-row"><span>Valor Original:</span><span id="dl-vxml" style="color:var(--vermelho)">—</span></div>
-            <div class="dado-row"><span>Valor Corrigido:</span><span id="dl-vml" style="color:var(--verde);font-weight:700">—</span></div>
-            <br>
-            <div class="info-box">
-                📋 Próximos passos:<br>
-                1. Baixe o XML corrigido<br>
-                2. Acesse a venda no ML<br>
-                3. Faça o upload manual do XML na tela de emissão de NF-e
-            </div>
-            <br>
-            <button class="btn btn-success" onclick="baixarXml()">⬇️ BAIXAR XML CORRIGIDO</button>
-            <button class="btn btn-outline" onclick="location.reload()">🔄 Processar outro XML</button>
+      <div class="card">
+        <div class="card-title">✅ NF-e Gerada com Sucesso!</div>
+        <div class="info-green" id="resultado-nf"></div>
+        <br>
+        <div class="dado-row"><span class="dado-label">Número NF:</span><span class="dado-valor" id="dl-numero">—</span></div>
+        <div class="dado-row"><span class="dado-label">Valor emitido:</span><span class="dado-valor" style="color:var(--verde)" id="dl-valor">—</span></div>
+        <div class="dado-row"><span class="dado-label">Situação:</span><span class="dado-valor" id="dl-situacao">—</span></div>
+        <br>
+        <div class="info-yellow">
+          📋 Próximos passos:<br>
+          1. Baixe o XML da NF-e<br>
+          2. Abra o <strong>Corretor de NF-e</strong><br>
+          3. O corretor vai dobrar o valor automaticamente<br>
+          4. Envie ao Mercado Livre
         </div>
+        <br>
+        <button class="btn btn-success" onclick="baixarXml()">⬇️ BAIXAR XML DA NF-e</button>
+        <button class="btn btn-primary" onclick="novaNotaFiscal()">➕ Gerar Nova NF-e</button>
+      </div>
     </div>
+
+  </div>
+
 </div>
 
 <script>
 const PROXY = 'https://script.google.com/macros/s/AKfycbwqYEueY3bT9DApjqUU-xH3GZHPPbp9T-VLv1XsOFSzAqhyi-Tf1DihNTVj96szjIUUGg/exec';
 
 let app = {
-    token: '', packId: '', orderId: '',
-    xml: '', xmlCorr: '', xmlNome: '',
-    vXml: 0, vMl: 0
+  usuario: '', tipo: '', nome: '',
+  pedido: null, percentual: 50,
+  xmlGerado: '', nomeArquivo: ''
 };
 
+// ── HELPERS ──
+function fmt(v) { return 'R$ ' + parseFloat(v).toFixed(2).replace('.',','); }
+
+async function chamarProxy(body) {
+  const resp = await fetch(PROXY, { method: 'POST', body: JSON.stringify(body) });
+  return await resp.json();
+}
+
+function addLog(msg, tipo) {
+  const log = document.getElementById('log-gerar');
+  const cores = { ok: '#1D9E75', err: '#ff6b6b', info: '#29b6f6', warn: '#f5c518' };
+  const line = document.createElement('div');
+  line.style.color = cores[tipo] || '#888';
+  line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ── NAVEGAÇÃO ──
 function irStep(n) {
-    document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
-    document.getElementById('step' + n).classList.add('ativa');
-    document.querySelectorAll('.step-indicator span').forEach((s, i) => {
-        s.className = (i + 1 === n) ? 'active' : '';
-    });
+  document.querySelectorAll('#tela-cliente .secao').forEach(s => s.classList.remove('ativa'));
+  document.getElementById('step' + n).classList.add('ativa');
+  document.querySelectorAll('.step-indicator span').forEach((s, i) => {
+    s.className = i + 1 === n ? 'active' : (i + 1 < n ? 'done' : '');
+  });
 }
 
-function irStep2() {
-    const token = document.getElementById('token').value.trim();
-    const packId = document.getElementById('pack-id').value.trim();
-    if(!token) { alert('Informe o Access Token!'); return; }
-    if(!packId) { alert('Informe o Pack ID da venda!'); return; }
-    app.token = token;
-    app.packId = packId;
-    irStep(2);
+function mostrarTela(id) {
+  document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
 }
 
-function lerXml(input) {
-    const f = input.files[0];
-    if(!f) return;
-    app.xmlNome = f.name;
-    const r = new FileReader();
-    r.onload = e => {
-        app.xml = e.target.result;
-        const doc = new DOMParser().parseFromString(app.xml, 'text/xml');
-        const vNF = doc.querySelector('vNF');
-        app.vXml = vNF ? parseFloat(vNF.textContent) : 0;
-        const xProd = doc.querySelector('xProd');
-        const produto = xProd ? xProd.textContent.substring(0,50) : '—';
-        document.getElementById('preview-xml').style.display = 'block';
-        document.getElementById('preview-xml').innerHTML =
-            '✅ <strong>' + f.name + '</strong><br>' +
-            '📦 Produto: ' + produto + '<br>' +
-            '💰 Valor na NF: <strong>R$ ' + app.vXml.toFixed(2).replace('.',',') + '</strong>';
-        document.getElementById('btn-fetch').disabled = false;
-    };
-    r.readAsText(f);
-}
+// ── LOGIN ──
+async function fazerLogin() {
+  const btn = document.getElementById('btn-login');
+  const usuario = document.getElementById('login-usuario').value.trim();
+  const senha = document.getElementById('login-senha').value.trim();
+  const erro = document.getElementById('login-erro');
 
-async function buscarNoML() {
-    const btn = document.getElementById('btn-fetch');
-    btn.innerHTML = '<span class="spinner"></span>Buscando...';
-    btn.disabled = true;
-    try {
-        // Busca pelo pack_id — o doPost vai buscar os orders do pack
-        const res = await fetch(PROXY, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'buscar_pedido',
-                token: app.token,
-                pack_id: app.packId
-            })
-        });
-        const data = await res.json();
-        if(data.error) throw new Error(data.message || data.error);
+  if(!usuario || !senha) { erro.textContent = 'Preencha usuário e senha!'; erro.style.display = 'block'; return; }
 
-        app.vMl = parseFloat(data.total_amount);
-        app.orderId = String(data.id);
+  btn.innerHTML = '<span class="spinner"></span>Entrando...';
+  btn.disabled = true;
+  erro.style.display = 'none';
 
-        document.getElementById('v-xml').textContent = 'R$ ' + app.vXml.toFixed(2).replace('.',',');
-        document.getElementById('v-ml').textContent = 'R$ ' + app.vMl.toFixed(2).replace('.',',');
-        document.getElementById('v-order').textContent = app.orderId;
-        document.getElementById('v-pack').textContent = app.packId;
-        irStep(3);
-    } catch(e) {
-        alert('Erro ao buscar: ' + e.message);
-        btn.textContent = '🔍 Buscar Valor Real no ML';
-        btn.disabled = false;
+  try {
+    const data = await chamarProxy({ action: 'login', usuario, senha });
+    if(data.error) {
+      erro.textContent = data.message;
+      erro.style.display = 'block';
+      btn.textContent = 'Entrar →';
+      btn.disabled = false;
+      return;
     }
+
+    app.usuario = usuario;
+    app.tipo = data.tipo;
+    app.nome = data.nome;
+
+    document.getElementById('header-nome').textContent = data.nome;
+    document.getElementById('header-nome').style.display = 'block';
+    document.getElementById('btn-logout').style.display = 'block';
+
+    if(data.tipo === 'adm') {
+      document.getElementById('adm-total-clientes').textContent = data.clientes.length;
+      const lista = document.getElementById('adm-lista-clientes');
+      lista.innerHTML = data.clientes.map(c =>
+        '<div class="dado-row"><span class="dado-label">👤 ' + c + '</span><span style="color:var(--verde);font-size:0.8rem">Ativo</span></div>'
+      ).join('');
+      mostrarTela('tela-adm');
+    } else {
+      mostrarTela('tela-cliente');
+      irStep(1);
+    }
+
+  } catch(e) {
+    erro.textContent = 'Erro de conexão: ' + e.message;
+    erro.style.display = 'block';
+    btn.textContent = 'Entrar →';
+    btn.disabled = false;
+  }
 }
 
-function gerarXmlCorrigido() {
-    let corrigido = app.xml;
-    const vA = app.vXml.toFixed(2);
-    const vN = app.vMl.toFixed(2);
-    ['vProd','vUnCom','vUnTrib','vNF','vPag'].forEach(t => {
-        const reg = new RegExp('<' + t + '>' + vA.replace('.', '\\.') + '</' + t + '>', 'g');
-        corrigido = corrigido.replace(reg, '<' + t + '>' + vN + '</' + t + '>');
-    });
-    app.xmlCorr = corrigido;
+function logout() {
+  app = { usuario:'', tipo:'', nome:'', pedido:null, percentual:50, xmlGerado:'', nomeArquivo:'' };
+  document.getElementById('header-nome').style.display = 'none';
+  document.getElementById('btn-logout').style.display = 'none';
+  document.getElementById('login-usuario').value = '';
+  document.getElementById('login-senha').value = '';
+  mostrarTela('tela-login');
+}
 
-    document.getElementById('v-corr-antigo').textContent = 'R$ ' + vA.replace('.',',');
-    document.getElementById('v-corr-novo').textContent = 'R$ ' + vN.replace('.',',');
-    document.getElementById('pos-correcao').style.display = 'block';
+// ── BUSCAR PEDIDO ──
+async function buscarPedido() {
+  const btn = document.getElementById('btn-buscar');
+  const idPedido = document.getElementById('id-pedido').value.trim();
+  if(!idPedido) { alert('Informe o ID do pedido!'); return; }
+
+  btn.innerHTML = '<span class="spinner"></span>Buscando...';
+  btn.disabled = true;
+
+  try {
+    const data = await chamarProxy({ action: 'buscar_pedido_olist', usuario: app.usuario, id_pedido: idPedido });
+    if(data.error) throw new Error(data.message);
+
+    app.pedido = data;
+
+    // Exibe dados do pedido
+    document.getElementById('dados-pedido').innerHTML =
+      '<div class="dado-row"><span class="dado-label">Cliente:</span><span class="dado-valor">' + data.cliente_nome + '</span></div>' +
+      '<div class="dado-row"><span class="dado-label">CPF:</span><span class="dado-valor">' + data.cliente_cpf + '</span></div>' +
+      '<div class="dado-row"><span class="dado-label">Pedido ML:</span><span class="dado-valor" style="color:var(--azul-c)">' + data.numero_ecommerce + '</span></div>' +
+      '<div class="dado-row"><span class="dado-label">Valor total:</span><span class="dado-valor" style="color:var(--verde)">' + fmt(data.valor_total) + '</span></div>' +
+      '<div class="dado-row"><span class="dado-label">Produto:</span><span class="dado-valor" style="font-size:0.85rem">' + (data.itens[0] ? data.itens[0].item.descricao.substring(0,40) : '—') + '</span></div>';
+
+    // Atualiza cálculos
+    atualizarPct(50);
+    irStep(2);
+
+  } catch(e) {
+    alert('Erro: ' + e.message);
+  }
+
+  btn.textContent = '🔍 Buscar Pedido';
+  btn.disabled = false;
+}
+
+// ── PERCENTUAL ──
+function atualizarPct(val) {
+  app.percentual = parseInt(val);
+  document.getElementById('pct-display').textContent = val + '%';
+  document.getElementById('calc-pct').textContent = val + '%';
+
+  const slider = document.getElementById('pct-slider');
+  slider.value = val;
+  const pct = (val - 10) / (90 - 10) * 100;
+  slider.style.background = `linear-gradient(to right, var(--azul-c) ${pct}%, rgba(255,255,255,0.1) ${pct}%)`;
+
+  if(app.pedido) {
+    const real = parseFloat(app.pedido.valor_total);
+    const nf = (real * val / 100);
+    document.getElementById('calc-real').textContent = fmt(real);
+    document.getElementById('calc-nf').textContent = fmt(nf);
+    document.getElementById('calc-dobro').textContent = fmt(nf * (100 / val));
+  }
+}
+
+// ── CONFIRMAR STEP 3 ──
+function irStep3Real() {
+  if(!app.pedido) return;
+  const real = parseFloat(app.pedido.valor_total);
+  const nf = (real * app.percentual / 100);
+  document.getElementById('gen-pedido').textContent = app.pedido.id + ' (ML: ' + app.pedido.numero_ecommerce + ')';
+  document.getElementById('gen-real').textContent = fmt(real);
+  document.getElementById('gen-pct').textContent = app.percentual + '%';
+  document.getElementById('gen-nf').textContent = fmt(nf);
+  document.getElementById('log-gerar').innerHTML = '';
+  irStep(3);
+}
+
+// Intercepta irStep(3) para preencher dados
+const irStepOriginal = irStep;
+window.irStep = function(n) {
+  if(n === 3 && app.pedido) { irStep3Real(); return; }
+  irStepOriginal(n);
+};
+
+// ── GERAR NF-e ──
+async function gerarNFe() {
+  const btn = document.getElementById('btn-gerar');
+  btn.innerHTML = '<span class="spinner"></span>Gerando NF-e...';
+  btn.disabled = true;
+
+  const log = document.getElementById('log-gerar');
+  log.innerHTML = '';
+
+  addLog('Iniciando geração da NF-e...', 'info');
+  addLog('Pedido: ' + app.pedido.id + ' | Percentual: ' + app.percentual + '%', 'info');
+
+  try {
+    addLog('Criando e emitindo NF-e no Olist...', 'warn');
+
+    const data = await chamarProxy({
+      action: 'gerar_nfe',
+      usuario: app.usuario,
+      pedido: app.pedido,
+      percentual: app.percentual
+    });
+
+    if(data.error) throw new Error(data.message);
+
+    addLog('NF-e gerada! ID: ' + data.id_nf, 'ok');
+    addLog('Número: ' + data.numero + ' | Situação: ' + data.situacao, 'ok');
+    addLog('Valor emitido: ' + fmt(data.valor_nf), 'ok');
+
+    app.xmlGerado = data.xml;
+    app.nomeArquivo = 'NF_' + data.numero + '_' + app.pedido.numero_ecommerce + '.xml';
 
     // Preenche step 4
-    document.getElementById('dl-pack').textContent = app.packId;
-    document.getElementById('dl-order').textContent = app.orderId;
-    document.getElementById('dl-vxml').textContent = 'R$ ' + vA.replace('.',',');
-    document.getElementById('dl-vml').textContent = 'R$ ' + vN.replace('.',',');
+    document.getElementById('resultado-nf').innerHTML =
+      '✅ NF-e <strong>nº ' + data.numero + '</strong> gerada e autorizada pela SEFAZ!';
+    document.getElementById('dl-numero').textContent = data.numero + ' | Série ' + '4';
+    document.getElementById('dl-valor').textContent = fmt(data.valor_nf);
+    document.getElementById('dl-situacao').textContent = data.situacao;
+
+    irStepOriginal(4);
+
+  } catch(e) {
+    addLog('ERRO: ' + e.message, 'err');
+    btn.textContent = '🚀 Tentar Novamente';
+    btn.disabled = false;
+  }
 }
 
+// ── BAIXAR XML ──
 function baixarXml() {
-    const blob = new Blob([app.xmlCorr], {type:'text/xml'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'CORRIGIDO_' + app.xmlNome;
-    a.click();
+  if(!app.xmlGerado) { alert('XML não disponível!'); return; }
+  const blob = new Blob([app.xmlGerado], {type:'text/xml'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = app.nomeArquivo;
+  a.click();
+}
+
+// ── NOVA NF ──
+function novaNotaFiscal() {
+  app.pedido = null;
+  app.xmlGerado = '';
+  document.getElementById('id-pedido').value = '';
+  irStepOriginal(1);
 }
 </script>
 </body>
