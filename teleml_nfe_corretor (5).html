@@ -6,10 +6,7 @@
     <title>TELEML — Corretor de NF-e</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --azul-m: #1565c0; --azul-c: #29b6f6; --verde: #1D9E75; --vermelho: #ff6b6b;
-            --bg: #080f24; --card: rgba(255,255,255,0.04); --borda: rgba(41,182,246,0.15);
-        }
+        :root { --azul-m: #1565c0; --azul-c: #29b6f6; --verde: #1D9E75; --vermelho: #ff6b6b; --bg: #080f24; --card: rgba(255,255,255,0.04); --borda: rgba(41,182,246,0.15); }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'DM Sans', sans-serif; background:var(--bg); color:#fff; min-height:100vh; }
         .header { background:rgba(13,31,78,0.95); border-bottom:1px solid var(--borda); padding:15px 25px; }
@@ -30,14 +27,14 @@
 </head>
 <body>
 
-<div class="header"><div class="header-logo">TELE<span>ML</span> — Corretor de NF-e</div></div>
+<div class="header"><div class="header-logo">TELE<span>ML</span> — Corretor</div></div>
 
 <div class="main">
     <div class="secao ativa" id="step1">
         <div class="card">
             <h3>🔑 Configuração</h3><br>
-            <input type="password" id="token" class="input-field" placeholder="Access Token">
-            <input type="text" id="order" class="input-field" placeholder="ID da Venda (URL)">
+            <input type="password" id="token" class="input-field" placeholder="Access Token (APP_USR-...)">
+            <input type="text" id="order" class="input-field" placeholder="ID da Venda (Order ID)">
             <button class="btn btn-primary" onclick="irPara(2)">Próximo →</button>
         </div>
     </div>
@@ -56,11 +53,10 @@
         <div class="card">
             <h3>✏️ Conferência</h3><br>
             <p>XML: <span id="v-xml" style="color:var(--vermelho)">—</span></p>
-            <p>Real ML: <span id="v-ml" style="color:var(--verde)">—</span></p>
-            <br>
+            <p>Real ML: <span id="v-ml" style="color:var(--verde)">—</span></p><br>
             <button class="btn btn-primary" onclick="corrigir()">✏️ Corrigir XML</button>
             <div id="bloco-pos" style="display:none">
-                <button class="btn btn-success" onclick="baixar()">⬇️ BAIXAR XML AGORA</button>
+                <button class="btn btn-success" onclick="baixar()">⬇️ BAIXAR XML</button>
                 <button class="btn btn-primary" onclick="irPara(4)">Ir para o Envio →</button>
             </div>
             <button class="btn btn-outline" onclick="irPara(2)">Voltar</button>
@@ -71,7 +67,6 @@
         <div class="card">
             <h3>🚀 Envio Final</h3><br>
             <button class="btn btn-success" id="btn-enviar" onclick="enviar()">🚀 ENVIAR PARA O ML</button>
-            <button class="btn btn-outline" onclick="baixar()">⬇️ Baixar XML novamente</button>
             <div class="log-box" id="log-final">Aguardando...</div>
             <button class="btn btn-outline" onclick="location.reload()" style="margin-top:20px">Reiniciar</button>
         </div>
@@ -80,12 +75,12 @@
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrErjqzyIERF_5ETigcPuQ9-C3EXbKUko7swvWH9w05TgHMhWHSnH4gYq_ZqLuEV5i2A/exec';
-    let db = { token: '', order: '', xml: '', xmlCorr: '', vXml: 0, vMl: 0, nome: '' };
+    let db = { token: '', order: '', xml: '', xmlCorr: '', vXml: 0, vMl: 0, nome: '', packId: '' };
 
     function irPara(n) {
         document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
         document.getElementById('step' + n).classList.add('ativa');
-        if(n===1) { db.token = document.getElementById('token').value; db.order = document.getElementById('order').value; }
+        if(n===1) { db.token = document.getElementById('token').value.trim(); db.order = document.getElementById('order').value.trim(); }
     }
 
     function processarXml(input) {
@@ -104,17 +99,31 @@
     }
 
     async function buscarValor() {
+        const btn = document.getElementById('btn-fetch');
+        btn.textContent = "Buscando..."; btn.disabled = true;
         try {
             const res = await fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'buscar_pedido', token: document.getElementById('token').value, order_id: document.getElementById('order').value })
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'buscar_pedido', token: db.token, order_id: db.order })
             });
             const data = await res.json();
-            db.vMl = parseFloat(data.total_amount);
+            
+            // PROTEÇÃO CONTRA NaN:
+            db.vMl = parseFloat(data.total_amount || data.amount || 0);
+            db.packId = data.pack_id || data.id; // IMPORTANTE: Captura o ID do pacote
+
+            if (!db.vMl || isNaN(db.vMl)) {
+                throw new Error("Resposta inválida do ML. Verifique se o Token expirou.");
+            }
+
             document.getElementById('v-xml').textContent = "R$ " + db.vXml.toFixed(2);
             document.getElementById('v-ml').textContent = "R$ " + db.vMl.toFixed(2);
             irPara(3);
-        } catch(e) { alert("Erro na conexão: Verifique se o Script do Google está publicado como 'Qualquer pessoa'."); }
+        } catch(e) { 
+            alert("Erro: " + e.message); 
+            btn.textContent = "Buscar Valor no ML"; btn.disabled = false;
+        }
     }
 
     function corrigir() {
@@ -139,26 +148,26 @@
 
     async function enviar() {
         const log = document.getElementById('log-final');
-        log.textContent = "Iniciando envio...";
+        log.textContent = "Enviando com ID: " + db.packId + "...";
         try {
             const b64 = btoa(unescape(encodeURIComponent(db.xmlCorr)));
-            const response = await fetch(SCRIPT_URL, {
+            const res = await fetch(SCRIPT_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'text/plain' }, // Evita problemas de pre-flight CORS
+                headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({
                     action: 'enviar_nfe',
-                    token: document.getElementById('token').value,
-                    pack_id: document.getElementById('order').value,
+                    token: db.token,
+                    pack_id: db.packId, // ENVIA O ID CORRETO
                     xml_base64: b64,
                     nome_arquivo: db.nome
                 })
             });
-            const result = await response.json();
+            const result = await res.json();
             if(result.error) throw new Error(result.message);
-            log.style.color = "#1D9E75"; log.textContent = "✅ SUCESSO: Enviado ao Mercado Livre!";
+            log.style.color = "#1D9E75"; log.textContent = "✅ SUCESSO: Etiqueta deve liberar em breve!";
         } catch(e) {
             log.style.color = "#ff6b6b"; 
-            log.textContent = "❌ ERRO: " + e.message + ". Verifique se o Order ID e o Token estão corretos.";
+            log.textContent = "❌ ERRO: " + e.message;
         }
     }
 </script>
