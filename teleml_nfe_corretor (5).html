@@ -84,9 +84,11 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
     <div class="card">
       <div class="card-title">🔐 Acesso ao Sistema</div>
       <label>USUÁRIO</label>
-      <input type="text" id="login-usuario" class="input-field" placeholder="Digite seu usuário" onkeydown="if(event.key==='Enter')fazerLogin()">
+      <input type="text" id="login-usuario" class="input-field" placeholder="Digite seu usuário"
+        onkeydown="if(event.key==='Enter')document.getElementById('login-senha').focus()">
       <label>SENHA</label>
-      <input type="password" id="login-senha" class="input-field" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()">
+      <input type="password" id="login-senha" class="input-field" placeholder="Digite sua senha"
+        onkeydown="if(event.key==='Enter')fazerLogin()">
       <div id="login-erro" class="info-red" style="display:none"></div>
       <button class="btn btn-primary" id="btn-login" onclick="fazerLogin()">Entrar →</button>
     </div>
@@ -106,7 +108,6 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
 
   <!-- PAINEL CLIENTE -->
   <div class="tela" id="tela-cliente">
-
     <div class="step-indicator">
       <span id="ind1" class="active">1. PEDIDO</span>
       <span id="ind2">2. PERCENTUAL</span>
@@ -116,18 +117,19 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
       <span id="ind6">6. DOWNLOAD</span>
     </div>
 
-    <!-- STEP 1: PEDIDO -->
+    <!-- STEP 1 -->
     <div class="tela ativa" id="step1">
       <div class="card">
         <div class="card-title">🔍 Buscar Pedido</div>
         <label>ID DO PEDIDO NO OLIST</label>
-        <input type="text" id="id-pedido" class="input-field" placeholder="Ex: 928687831 ou cole a URL completa" onkeydown="if(event.key==='Enter')buscarPedido()">
+        <input type="text" id="id-pedido" class="input-field" placeholder="Ex: 928687831 ou cole a URL completa"
+          onkeydown="if(event.key==='Enter')buscarPedido()">
         <div class="info-blue">💡 Encontre o ID na URL do Olist:<br><strong>erp.olist.com/vendas#edit/<u>928687831</u></strong><br>Pode colar a URL completa — extraímos o ID automaticamente.</div>
         <button class="btn btn-primary" id="btn-buscar" onclick="buscarPedido()">🔍 Buscar Pedido</button>
       </div>
     </div>
 
-    <!-- STEP 2: PERCENTUAL -->
+    <!-- STEP 2 -->
     <div class="tela" id="step2">
       <div class="card">
         <div class="card-title">📋 Dados do Pedido</div>
@@ -152,7 +154,7 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
       </div>
     </div>
 
-    <!-- STEP 3: GERANDO -->
+    <!-- STEP 3 -->
     <div class="tela" id="step3">
       <div class="card">
         <div class="card-title">⚙️ Gerando NF-e</div>
@@ -163,12 +165,12 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
         <div class="dado-row"><span class="dado-label">Valor da NF-e:</span><span class="dado-valor" style="color:var(--verde)" id="gen-nf">—</span></div>
         <br>
         <button class="btn btn-success" id="btn-gerar" onclick="gerarNFe()">🚀 Gerar NF-e Agora</button>
-        <div class="log" id="log-gerar">Aguardando comando...</div>
+        <div class="log" id="log-gerar" style="display:none"></div>
         <button class="btn btn-outline" onclick="mudarStep('step2',2)">← Voltar</button>
       </div>
     </div>
 
-    <!-- STEP 4: NF GERADA -->
+    <!-- STEP 4 -->
     <div class="tela" id="step4">
       <div class="card">
         <div class="card-title">✅ NF-e Autorizada!</div>
@@ -180,16 +182,15 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
         <div class="dado-row"><span class="dado-label">Situação:</span><span class="dado-valor" id="dl-situacao">—</span></div>
         <br>
         <button class="btn btn-primary" onclick="irCorrigir()">✏️ Corrigir e Preparar para o ML →</button>
-        <button class="btn btn-outline" onclick="baixarXmlOriginal()">⬇️ Baixar XML Original (sem correção)</button>
+        <button class="btn btn-outline" onclick="baixarXmlOriginal()">⬇️ Baixar XML Original</button>
       </div>
     </div>
 
-    <!-- STEP 5: CORRIGIR -->
+    <!-- STEP 5 -->
     <div class="tela" id="step5">
       <div class="card">
         <div class="card-title">✏️ Corretor de Valor</div>
         <p style="font-size:0.85rem;color:#888;margin-bottom:16px">O corretor vai substituir o valor da NF pelo valor real da venda para enviar ao ML.</p>
-
         <div class="valor-comparativo">
           <div class="val-box">
             <div class="badge badge-red">❌ Valor na NF</div>
@@ -202,9 +203,7 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
             <div class="val-box-label">será enviado ao ML</div>
           </div>
         </div>
-
-        <div class="info-yellow">⚠️ O XML será alterado como texto puro — a assinatura digital ficará inválida. Estamos testando a aceitação pelo ML.</div>
-
+        <div class="info-yellow">⚠️ O XML será alterado como texto puro — a assinatura digital ficará inválida.</div>
         <div class="log" id="log-corrigir" style="display:none"></div>
         <br>
         <button class="btn btn-primary" id="btn-corrigir" onclick="corrigirXml()">✏️ Corrigir XML Agora</button>
@@ -212,7 +211,7 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
       </div>
     </div>
 
-    <!-- STEP 6: DOWNLOAD FINAL -->
+    <!-- STEP 6 -->
     <div class="tela" id="step6">
       <div class="card">
         <div class="card-title">⬇️ XML Pronto para o ML!</div>
@@ -402,14 +401,12 @@ async function gerarNFe() {
     addLog('log-gerar', 'Número: ' + data.numero + ' | ' + data.situacao, 'ok');
     addLog('log-gerar', 'Valor emitido: ' + fmt(data.valor_nf), 'ok');
 
-    // Salva dados
     app.xmlOriginal = data.xml;
     app.numeroNF = data.numero;
     app.valorNF = parseFloat(data.valor_nf);
     app.valorReal = parseFloat(data.valor_real);
     app.nomeArquivo = 'NF_' + data.numero + '_' + app.pedido.numero_ecommerce + '.xml';
 
-    // Preenche step 4
     document.getElementById('resultado-nf').innerHTML = '✅ NF-e <strong>nº ' + data.numero + '</strong> autorizada pela SEFAZ!';
     document.getElementById('dl-numero').textContent = 'Nº ' + data.numero + ' | Série 4';
     document.getElementById('dl-valor').textContent = fmt(data.valor_nf);
@@ -445,29 +442,46 @@ function corrigirXml() {
     const vA = app.valorNF.toFixed(2);
     const vN = app.valorReal.toFixed(2);
 
-    addLog('log-corrigir', 'Valor atual no XML: ' + fmt(vA), 'info');
-    addLog('log-corrigir', 'Valor real da venda: ' + fmt(vN), 'info');
-    addLog('log-corrigir', 'Substituindo campos...', 'warn');
+    addLog('log-corrigir', 'Valor na NF: R$ ' + vA, 'info');
+    addLog('log-corrigir', 'Valor real da venda: R$ ' + vN, 'info');
+    addLog('log-corrigir', 'Buscando campos para substituir...', 'warn');
 
     let xml = app.xmlOriginal;
     let total = 0;
-    ['vProd','vUnCom','vUnTrib','vNF','vPag'].forEach(function(campo) {
-      const reg = new RegExp('<' + campo + '>' + vA.replace('.', '\\.') + '</' + campo + '>', 'g');
+
+    // Extrai vNF real do XML para garantir que está usando o valor correto
+    const matchVNF = xml.match(/<vNF>([\d.]+)<\/vNF>/);
+    const valorNoXml = matchVNF ? matchVNF[1] : vA;
+
+    if(valorNoXml !== vA) {
+      addLog('log-corrigir', '⚠️ Valor no XML (' + valorNoXml + ') diferente do esperado (' + vA + ') — usando valor do XML', 'warn');
+    }
+
+    const vAReal = valorNoXml;
+
+    ['vUnCom', 'vUnTrib', 'vNF', 'vProd'].forEach(function(campo) {
+      const reg = new RegExp('<' + campo + '>' + vAReal.replace('.', '\\.') + '</' + campo + '>', 'g');
       const matches = xml.match(reg);
       if(matches) {
         xml = xml.replace(reg, '<' + campo + '>' + vN + '</' + campo + '>');
         total += matches.length;
-        addLog('log-corrigir', '✅ <' + campo + '> ' + vA + ' → ' + vN, 'ok');
+        addLog('log-corrigir', '✅ <' + campo + '> ' + vAReal + ' → ' + vN, 'ok');
       }
     });
 
-    addLog('log-corrigir', total + ' substituições realizadas', 'info');
+    // vPag só substitui se igual ao valor da NF
+    const regPag = new RegExp('<vPag>' + vAReal.replace('.', '\\.') + '</vPag>', 'g');
+    if(xml.match(regPag)) {
+      xml = xml.replace(regPag, '<vPag>' + vN + '</vPag>');
+      total++;
+      addLog('log-corrigir', '✅ <vPag> ' + vAReal + ' → ' + vN, 'ok');
+    }
+
+    addLog('log-corrigir', total + ' substituições realizadas', total > 0 ? 'ok' : 'warn');
     addLog('log-corrigir', '⚠️ Assinatura digital não recalculada', 'warn');
-    addLog('log-corrigir', 'XML corrigido com sucesso!', 'ok');
 
     app.xmlCorrigido = xml;
 
-    // Preenche step 6
     document.getElementById('fin-numero').textContent = 'Nº ' + app.numeroNF + ' | Série 4';
     document.getElementById('fin-valor').textContent = fmt(app.valorReal);
     document.getElementById('fin-ml').textContent = app.pedido.numero_ecommerce;
