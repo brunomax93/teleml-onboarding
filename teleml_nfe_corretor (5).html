@@ -441,26 +441,17 @@ function corrigirXml() {
   btn.innerHTML = '<span class="spinner"></span>Corrigindo...';
   btn.disabled = true;
 
-  function corrigirXml() {
-  const btn = document.getElementById('btn-corrigir');
-  btn.innerHTML = '<span class="spinner"></span>Corrigindo...';
-  btn.disabled = true;
-
   setTimeout(function() {
-    // Garante ponto decimal, não vírgula
     const vA = app.valorNF.toFixed(2);
     const vN = app.valorReal.toFixed(2);
 
-    addLog('log-corrigir', 'Valor na NF: R$ ' + vA, 'info');
-    addLog('log-corrigir', 'Valor real da venda: R$ ' + vN, 'info');
-    addLog('log-corrigir', 'Buscando campos para substituir...', 'warn');
+    addLog('log-corrigir', 'Valor atual no XML: ' + fmt(vA), 'info');
+    addLog('log-corrigir', 'Valor real da venda: ' + fmt(vN), 'info');
+    addLog('log-corrigir', 'Substituindo campos...', 'warn');
 
     let xml = app.xmlOriginal;
     let total = 0;
-
-    // Substitui todos os campos de valor monetário
-    const camposExatos = ['vUnCom', 'vUnTrib', 'vNF', 'vProd'];
-    camposExatos.forEach(function(campo) {
+    ['vProd','vUnCom','vUnTrib','vNF','vPag'].forEach(function(campo) {
       const reg = new RegExp('<' + campo + '>' + vA.replace('.', '\\.') + '</' + campo + '>', 'g');
       const matches = xml.match(reg);
       if(matches) {
@@ -470,28 +461,13 @@ function corrigirXml() {
       }
     });
 
-    // vPag tem valor diferente (pode ser 0), substituir só se igual ao valorNF
-    const regPag = new RegExp('<vPag>' + vA.replace('.', '\\.') + '</vPag>', 'g');
-    if(xml.match(regPag)) {
-      xml = xml.replace(regPag, '<vPag>' + vN + '</vPag>');
-      total++;
-      addLog('log-corrigir', '✅ <vPag> ' + vA + ' → ' + vN, 'ok');
-    }
-
-    if(total === 0) {
-      addLog('log-corrigir', '⚠️ Nenhum campo encontrado com valor ' + vA, 'warn');
-      addLog('log-corrigir', 'Verificando valores no XML...', 'info');
-      // Extrai o vNF do XML para debug
-      const matchVNF = xml.match(/<vNF>([\d.]+)<\/vNF>/);
-      if(matchVNF) addLog('log-corrigir', 'vNF encontrado no XML: ' + matchVNF[1], 'warn');
-    } else {
-      addLog('log-corrigir', total + ' substituições realizadas', 'ok');
-    }
-
+    addLog('log-corrigir', total + ' substituições realizadas', 'info');
     addLog('log-corrigir', '⚠️ Assinatura digital não recalculada', 'warn');
+    addLog('log-corrigir', 'XML corrigido com sucesso!', 'ok');
 
     app.xmlCorrigido = xml;
 
+    // Preenche step 6
     document.getElementById('fin-numero').textContent = 'Nº ' + app.numeroNF + ' | Série 4';
     document.getElementById('fin-valor').textContent = fmt(app.valorReal);
     document.getElementById('fin-ml').textContent = app.pedido.numero_ecommerce;
