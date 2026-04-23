@@ -305,20 +305,13 @@ function extrairDadosXml(xml) {
   document.getElementById('dado-emitente').textContent = (xNome ? xNome.textContent : '—').substring(0,30);
 }
 
-// ── BUSCAR VALOR VIA PROXY ──
 async function buscarValorML() {
-  // 1. Validação inicial de interface
-  if(!estado.orderId) { 
-    alert('Informe o Order ID no Passo 1!'); 
-    return; 
-  }
+  if(!estado.orderId) { alert('Informe o Order ID!'); return; }
   
   document.getElementById('btn-buscar').disabled = true;
-  document.getElementById('btn-buscar').textContent = '⏳ Buscando...';
   document.getElementById('loading-buscar').classList.add('show');
 
   try {
-    // 2. Chamada ao servidor (Proxy Apps Script)
     const resp = await fetch(PROXY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
@@ -329,48 +322,29 @@ async function buscarValorML() {
       })
     });
 
-    const text = await resp.text();
-    let data;
-    
-    // 3. Tenta transformar a resposta em JSON
-    try { 
-      data = JSON.parse(text); 
-    } catch(e) { 
-      throw new Error('Resposta inválida do servidor: ' + text.substring(0,100)); 
-    }
+    const data = await resp.json();
 
-    // 4. Agora sim verificamos se o dado é válido (depois de recebê-lo)
-    if (!data || data.error) {
-      throw new Error(data.message || 'Erro ao localizar o pedido no Mercado Livre.');
-    }
+    if(data.error) throw new Error(data.message);
 
-    // 5. Atribuição de valores (usando o que o script v3 enviou)
-    // Se total_amount vier zerado, ele tenta manter o que tem, mas avisa no console
-    estado.valorReal = data.total_amount || 0;
-    estado.packId = data.pack_id || data.id;
-
-    if (!estado.packId) {
-      throw new Error('ID do Pacote (Pack ID) não encontrado na resposta.');
-    }
+    // Agora pegamos o valor que o Script v5 calculou
+    estado.valorReal = parseFloat(data.total_amount);
+    estado.packId = data.pack_id || estado.orderId;
 
     if (estado.valorReal === 0) {
-      console.warn("Aviso: O valor retornado foi 0. Verifique se o pedido está correto.");
+      alert("Aviso: O valor retornado foi R$ 0,00. Verifique se o ID está correto.");
     }
 
-    // 6. Atualização da Interface
-    document.getElementById('loading-buscar').classList.remove('show');
+    // Atualiza a tela com os R$ 327,15 (ou o valor que vier)
     document.getElementById('val-atual').textContent = 'R$ ' + estado.valorNF.toFixed(2).replace('.',',');
     document.getElementById('val-real').textContent = 'R$ ' + estado.valorReal.toFixed(2).replace('.',',');
     
-    // 7. Segue para o próximo passo
+    document.getElementById('loading-buscar').classList.remove('show');
     irParaStep(3);
 
   } catch(e) {
-    // Tratamento de erros
     document.getElementById('loading-buscar').classList.remove('show');
     document.getElementById('btn-buscar').disabled = false;
-    document.getElementById('btn-buscar').textContent = '🔍 Buscar Valor Real no ML';
-    alert('Erro ao buscar pedido: ' + e.message);
+    alert('Erro: ' + e.message);
   }
 }
 
