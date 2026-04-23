@@ -307,20 +307,18 @@ function extrairDadosXml(xml) {
 
 // ── BUSCAR VALOR VIA PROXY ──
 async function buscarValorML() {
-  // Verifica se a resposta existe e se tem algum ID ou valor
-if (!data || (!data.total_amount && !data.id && !data.pack_id)) {
-  throw new Error('Não foi possível obter os dados do pedido. Resposta: ' + JSON.stringify(data).substring(0,300));
-}
-
-// Se o total_amount for 0 ou indefinido, mas tivermos o objeto, tentamos seguir
-estado.valorReal = data.total_amount || 0; 
-estado.packId = data.pack_id || data.id;
-
-if (estado.valorReal === 0) {
-  console.warn("Aviso: O valor retornado pela API foi 0. Verifique se o pedido já foi pago ou se o token tem permissão.");
-}
+  // 1. Validação inicial de interface
+  if(!estado.orderId) { 
+    alert('Informe o Order ID no Passo 1!'); 
+    return; 
+  }
+  
+  document.getElementById('btn-buscar').disabled = true;
+  document.getElementById('btn-buscar').textContent = '⏳ Buscando...';
+  document.getElementById('loading-buscar').classList.add('show');
 
   try {
+    // 2. Chamada ao servidor (Proxy Apps Script)
     const resp = await fetch(PROXY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
@@ -333,21 +331,42 @@ if (estado.valorReal === 0) {
 
     const text = await resp.text();
     let data;
-    try { data = JSON.parse(text); } catch(e) { throw new Error('Resposta inválida: ' + text.substring(0,100)); }
+    
+    // 3. Tenta transformar a resposta em JSON
+    try { 
+      data = JSON.parse(text); 
+    } catch(e) { 
+      throw new Error('Resposta inválida do servidor: ' + text.substring(0,100)); 
+    }
 
-    document.getElementById('loading-buscar').classList.remove('show');
+    // 4. Agora sim verificamos se o dado é válido (depois de recebê-lo)
+    if (!data || data.error) {
+      throw new Error(data.message || 'Erro ao localizar o pedido no Mercado Livre.');
+    }
 
-    if(data.error) throw new Error(data.message || data.error);
-    if(!data.total_amount) throw new Error('Pedido não encontrado. Resposta: ' + JSON.stringify(data).substring(0,300));
-
-    estado.valorReal = data.total_amount;
+    // 5. Atribuição de valores (usando o que o script v3 enviou)
+    // Se total_amount vier zerado, ele tenta manter o que tem, mas avisa no console
+    estado.valorReal = data.total_amount || 0;
     estado.packId = data.pack_id || data.id;
 
+    if (!estado.packId) {
+      throw new Error('ID do Pacote (Pack ID) não encontrado na resposta.');
+    }
+
+    if (estado.valorReal === 0) {
+      console.warn("Aviso: O valor retornado foi 0. Verifique se o pedido está correto.");
+    }
+
+    // 6. Atualização da Interface
+    document.getElementById('loading-buscar').classList.remove('show');
     document.getElementById('val-atual').textContent = 'R$ ' + estado.valorNF.toFixed(2).replace('.',',');
     document.getElementById('val-real').textContent = 'R$ ' + estado.valorReal.toFixed(2).replace('.',',');
+    
+    // 7. Segue para o próximo passo
     irParaStep(3);
 
   } catch(e) {
+    // Tratamento de erros
     document.getElementById('loading-buscar').classList.remove('show');
     document.getElementById('btn-buscar').disabled = false;
     document.getElementById('btn-buscar').textContent = '🔍 Buscar Valor Real no ML';
