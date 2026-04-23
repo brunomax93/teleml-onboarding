@@ -29,6 +29,7 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
 .btn-primary:hover{opacity:0.9;}
 .btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
 .btn-success{background:var(--verde);color:#fff;}
+.btn-success:hover{opacity:0.9;}
 .btn-outline{background:transparent;border:1px solid var(--borda);color:#aaa;}
 .btn-outline:hover{border-color:var(--azul-c);color:#fff;}
 .info-box{border-radius:10px;padding:14px;margin:12px 0;font-size:0.85rem;line-height:1.7;}
@@ -48,15 +49,22 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
 .calc-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin:14px 0;}
 .calc-row{display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;}
 .calc-row.total{border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;margin-top:8px;margin-bottom:0;}
-.log{font-family:monospace;font-size:0.75rem;background:#000;padding:12px;border-radius:8px;margin-top:12px;max-height:120px;overflow-y:auto;color:#666;line-height:1.6;}
+.log{font-family:monospace;font-size:0.75rem;background:#000;padding:12px;border-radius:8px;margin-top:12px;max-height:150px;overflow-y:auto;color:#666;line-height:1.6;}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.step-indicator{display:flex;justify-content:space-between;margin-bottom:30px;font-size:0.78rem;color:#444;font-weight:700;}
+.step-indicator{display:flex;justify-content:space-between;margin-bottom:30px;font-size:0.72rem;color:#444;font-weight:700;}
 .step-indicator .active{color:var(--azul-c);}
 .step-indicator .done{color:var(--verde);}
 .tela{display:none;}
 .tela.ativa{display:block;animation:fadeIn 0.3s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.valor-comparativo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}
+.val-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;text-align:center;}
+.val-box-label{font-size:0.75rem;color:#666;margin-bottom:6px;}
+.val-box-value{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;margin-bottom:8px;}
+.badge-red{background:rgba(255,107,107,0.15);color:var(--vermelho);}
+.badge-green{background:rgba(29,158,117,0.15);color:var(--verde);}
 </style>
 </head>
 <body>
@@ -103,10 +111,12 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
       <span id="ind1" class="active">1. PEDIDO</span>
       <span id="ind2">2. PERCENTUAL</span>
       <span id="ind3">3. GERAR</span>
-      <span id="ind4">4. DOWNLOAD</span>
+      <span id="ind4">4. NF-e OK</span>
+      <span id="ind5">5. CORRIGIR</span>
+      <span id="ind6">6. DOWNLOAD</span>
     </div>
 
-    <!-- STEP 1 -->
+    <!-- STEP 1: PEDIDO -->
     <div class="tela ativa" id="step1">
       <div class="card">
         <div class="card-title">🔍 Buscar Pedido</div>
@@ -117,7 +127,7 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
       </div>
     </div>
 
-    <!-- STEP 2 -->
+    <!-- STEP 2: PERCENTUAL -->
     <div class="tela" id="step2">
       <div class="card">
         <div class="card-title">📋 Dados do Pedido</div>
@@ -135,14 +145,14 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
           <div class="calc-row"><span style="color:#888">Valor real do pedido:</span><span style="color:#fff" id="calc-real">—</span></div>
           <div class="calc-row"><span style="color:#888">Percentual selecionado:</span><span style="color:var(--amarelo)" id="calc-pct">50%</span></div>
           <div class="calc-row total"><span style="color:#888">Valor da NF-e:</span><span style="color:var(--verde);font-size:1.1rem" id="calc-nf">—</span></div>
-          <div class="calc-row"><span style="color:#888">Corretor vai dobrar para:</span><span style="color:var(--azul-c)" id="calc-dobro">—</span></div>
+          <div class="calc-row"><span style="color:#888">Corretor vai converter para:</span><span style="color:var(--azul-c)" id="calc-dobro">—</span></div>
         </div>
         <button class="btn btn-primary" onclick="confirmarStep3()">Confirmar e Gerar NF-e →</button>
-        <button class="btn btn-outline" onclick="mudarStep('step1', 1)">← Voltar</button>
+        <button class="btn btn-outline" onclick="mudarStep('step1',1)">← Voltar</button>
       </div>
     </div>
 
-    <!-- STEP 3 -->
+    <!-- STEP 3: GERANDO -->
     <div class="tela" id="step3">
       <div class="card">
         <div class="card-title">⚙️ Gerando NF-e</div>
@@ -154,29 +164,73 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
         <br>
         <button class="btn btn-success" id="btn-gerar" onclick="gerarNFe()">🚀 Gerar NF-e Agora</button>
         <div class="log" id="log-gerar">Aguardando comando...</div>
-        <button class="btn btn-outline" onclick="mudarStep('step2', 2)">← Voltar</button>
+        <button class="btn btn-outline" onclick="mudarStep('step2',2)">← Voltar</button>
       </div>
     </div>
 
-    <!-- STEP 4 -->
+    <!-- STEP 4: NF GERADA -->
     <div class="tela" id="step4">
       <div class="card">
-        <div class="card-title">✅ NF-e Gerada!</div>
+        <div class="card-title">✅ NF-e Autorizada!</div>
         <div class="info-green" id="resultado-nf"></div>
         <br>
         <div class="dado-row"><span class="dado-label">Número NF:</span><span class="dado-valor" id="dl-numero">—</span></div>
-        <div class="dado-row"><span class="dado-label">Valor emitido:</span><span class="dado-valor" style="color:var(--verde)" id="dl-valor">—</span></div>
+        <div class="dado-row"><span class="dado-label">Valor emitido (NF):</span><span class="dado-valor" style="color:var(--vermelho)" id="dl-valor">—</span></div>
+        <div class="dado-row"><span class="dado-label">Valor real (ML):</span><span class="dado-valor" style="color:var(--verde)" id="dl-real">—</span></div>
         <div class="dado-row"><span class="dado-label">Situação:</span><span class="dado-valor" id="dl-situacao">—</span></div>
         <br>
-        <div class="info-yellow">
-          📋 Próximos passos:<br>
-          1. Baixe o XML da NF-e<br>
-          2. Abra o <strong>Corretor de NF-e</strong><br>
-          3. O corretor vai dobrar o valor automaticamente<br>
-          4. Envie ao Mercado Livre
+        <button class="btn btn-primary" onclick="irCorrigir()">✏️ Corrigir e Preparar para o ML →</button>
+        <button class="btn btn-outline" onclick="baixarXmlOriginal()">⬇️ Baixar XML Original (sem correção)</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: CORRIGIR -->
+    <div class="tela" id="step5">
+      <div class="card">
+        <div class="card-title">✏️ Corretor de Valor</div>
+        <p style="font-size:0.85rem;color:#888;margin-bottom:16px">O corretor vai substituir o valor da NF pelo valor real da venda para enviar ao ML.</p>
+
+        <div class="valor-comparativo">
+          <div class="val-box">
+            <div class="badge badge-red">❌ Valor na NF</div>
+            <div class="val-box-value" style="color:var(--vermelho)" id="corr-nf">—</div>
+            <div class="val-box-label">emitido no Olist</div>
+          </div>
+          <div class="val-box">
+            <div class="badge badge-green">✅ Valor Real</div>
+            <div class="val-box-value" style="color:var(--verde)" id="corr-real">—</div>
+            <div class="val-box-label">será enviado ao ML</div>
+          </div>
+        </div>
+
+        <div class="info-yellow">⚠️ O XML será alterado como texto puro — a assinatura digital ficará inválida. Estamos testando a aceitação pelo ML.</div>
+
+        <div class="log" id="log-corrigir" style="display:none"></div>
+        <br>
+        <button class="btn btn-primary" id="btn-corrigir" onclick="corrigirXml()">✏️ Corrigir XML Agora</button>
+        <button class="btn btn-outline" onclick="mudarStep('step4',4)">← Voltar</button>
+      </div>
+    </div>
+
+    <!-- STEP 6: DOWNLOAD FINAL -->
+    <div class="tela" id="step6">
+      <div class="card">
+        <div class="card-title">⬇️ XML Pronto para o ML!</div>
+        <div class="info-green">✅ XML corrigido com sucesso! Pronto para enviar ao Mercado Livre.</div>
+        <br>
+        <div class="dado-row"><span class="dado-label">Número NF:</span><span class="dado-valor" id="fin-numero">—</span></div>
+        <div class="dado-row"><span class="dado-label">Valor corrigido:</span><span class="dado-valor" style="color:var(--verde)" id="fin-valor">—</span></div>
+        <div class="dado-row"><span class="dado-label">Pedido ML:</span><span class="dado-valor" style="color:var(--azul-c)" id="fin-ml">—</span></div>
+        <br>
+        <div class="info-blue">
+          📋 Como enviar ao ML:<br>
+          1. Baixe o XML corrigido abaixo<br>
+          2. Acesse a venda no Mercado Livre<br>
+          3. Vá em <strong>Emitir NF-e → Enviar XML</strong><br>
+          4. Faça o upload do arquivo
         </div>
         <br>
-        <button class="btn btn-success" onclick="baixarXml()">⬇️ BAIXAR XML DA NF-e</button>
+        <button class="btn btn-success" onclick="baixarXmlCorrigido()">⬇️ BAIXAR XML CORRIGIDO</button>
         <button class="btn btn-primary" onclick="novaNotaFiscal()">➕ Gerar Nova NF-e</button>
       </div>
     </div>
@@ -187,7 +241,13 @@ label{font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;lett
 <script>
 const PROXY = 'https://script.google.com/macros/s/AKfycbwqYEueY3bT9DApjqUU-xH3GZHPPbp9T-VLv1XsOFSzAqhyi-Tf1DihNTVj96szjIUUGg/exec';
 
-let app = { usuario:'', tipo:'', nome:'', pedido:null, percentual:50, xmlGerado:'', nomeArquivo:'' };
+let app = {
+  usuario:'', tipo:'', nome:'',
+  pedido:null, percentual:50,
+  xmlOriginal:'', xmlCorrigido:'',
+  nomeArquivo:'', numeroNF:'',
+  valorNF:0, valorReal:0
+};
 
 function fmt(v) { return 'R$ ' + parseFloat(v).toFixed(2).replace('.',','); }
 
@@ -203,17 +263,16 @@ function mostrarTela(id) {
 }
 
 function mudarStep(stepId, num) {
-  // Esconde todos os steps dentro da tela-cliente
   document.querySelectorAll('#tela-cliente .tela').forEach(t => t.classList.remove('ativa'));
   document.getElementById(stepId).classList.add('ativa');
-  // Atualiza indicador
   document.querySelectorAll('.step-indicator span').forEach((s, i) => {
     s.className = i + 1 === num ? 'active' : (i + 1 < num ? 'done' : '');
   });
 }
 
-function addLog(msg, tipo) {
-  const log = document.getElementById('log-gerar');
+function addLog(logId, msg, tipo) {
+  const log = document.getElementById(logId);
+  log.style.display = 'block';
   const cores = { ok:'#1D9E75', err:'#ff6b6b', info:'#29b6f6', warn:'#f5c518' };
   const d = document.createElement('div');
   d.style.color = cores[tipo] || '#888';
@@ -258,7 +317,7 @@ async function fazerLogin() {
 }
 
 function logout() {
-  app = { usuario:'', tipo:'', nome:'', pedido:null, percentual:50, xmlGerado:'', nomeArquivo:'' };
+  app = { usuario:'', tipo:'', nome:'', pedido:null, percentual:50, xmlOriginal:'', xmlCorrigido:'', nomeArquivo:'', numeroNF:'', valorNF:0, valorReal:0 };
   document.getElementById('header-nome').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
   document.getElementById('login-usuario').value = '';
@@ -321,6 +380,7 @@ function confirmarStep3() {
   document.getElementById('gen-pct').textContent = app.percentual + '%';
   document.getElementById('gen-nf').textContent = fmt(nf);
   document.getElementById('log-gerar').innerHTML = '';
+  document.getElementById('log-gerar').style.display = 'none';
   document.getElementById('btn-gerar').textContent = '🚀 Gerar NF-e Agora';
   document.getElementById('btn-gerar').disabled = false;
   mudarStep('step3', 3);
@@ -332,42 +392,113 @@ async function gerarNFe() {
   btn.innerHTML = '<span class="spinner"></span>Gerando...';
   btn.disabled = true;
   document.getElementById('log-gerar').innerHTML = '';
-  addLog('Iniciando geração da NF-e...', 'info');
-  addLog('Pedido: ' + app.pedido.id + ' | Percentual: ' + app.percentual + '%', 'info');
+  addLog('log-gerar', 'Iniciando geração da NF-e...', 'info');
+  addLog('log-gerar', 'Pedido: ' + app.pedido.id + ' | Percentual: ' + app.percentual + '%', 'info');
   try {
-    addLog('Criando e emitindo NF-e no Olist...', 'warn');
+    addLog('log-gerar', 'Criando e emitindo NF-e no Olist...', 'warn');
     const data = await chamarProxy({ action:'gerar_nfe', usuario:app.usuario, pedido:app.pedido, percentual:app.percentual });
     if(data.error) throw new Error(data.message);
-    addLog('NF-e criada! ID: ' + data.id_nf, 'ok');
-    addLog('Número: ' + data.numero + ' | ' + data.situacao, 'ok');
-    addLog('Valor emitido: ' + fmt(data.valor_nf), 'ok');
-    app.xmlGerado = data.xml;
+    addLog('log-gerar', 'NF-e criada! ID: ' + data.id_nf, 'ok');
+    addLog('log-gerar', 'Número: ' + data.numero + ' | ' + data.situacao, 'ok');
+    addLog('log-gerar', 'Valor emitido: ' + fmt(data.valor_nf), 'ok');
+
+    // Salva dados
+    app.xmlOriginal = data.xml;
+    app.numeroNF = data.numero;
+    app.valorNF = parseFloat(data.valor_nf);
+    app.valorReal = parseFloat(data.valor_real);
     app.nomeArquivo = 'NF_' + data.numero + '_' + app.pedido.numero_ecommerce + '.xml';
+
+    // Preenche step 4
     document.getElementById('resultado-nf').innerHTML = '✅ NF-e <strong>nº ' + data.numero + '</strong> autorizada pela SEFAZ!';
     document.getElementById('dl-numero').textContent = 'Nº ' + data.numero + ' | Série 4';
     document.getElementById('dl-valor').textContent = fmt(data.valor_nf);
+    document.getElementById('dl-real').textContent = fmt(data.valor_real);
     document.getElementById('dl-situacao').textContent = data.situacao;
+
     mudarStep('step4', 4);
   } catch(e) {
-    addLog('ERRO: ' + e.message, 'err');
+    addLog('log-gerar', 'ERRO: ' + e.message, 'err');
     btn.textContent = '🚀 Tentar Novamente';
     btn.disabled = false;
   }
 }
 
-// ── BAIXAR XML ──
-function baixarXml() {
-  if(!app.xmlGerado) { alert('XML não disponível!'); return; }
-  const blob = new Blob([app.xmlGerado], {type:'text/xml'});
+// ── IR PARA CORRETOR ──
+function irCorrigir() {
+  document.getElementById('corr-nf').textContent = fmt(app.valorNF);
+  document.getElementById('corr-real').textContent = fmt(app.valorReal);
+  document.getElementById('log-corrigir').innerHTML = '';
+  document.getElementById('log-corrigir').style.display = 'none';
+  document.getElementById('btn-corrigir').textContent = '✏️ Corrigir XML Agora';
+  document.getElementById('btn-corrigir').disabled = false;
+  mudarStep('step5', 5);
+}
+
+// ── CORRIGIR XML ──
+function corrigirXml() {
+  const btn = document.getElementById('btn-corrigir');
+  btn.innerHTML = '<span class="spinner"></span>Corrigindo...';
+  btn.disabled = true;
+
+  setTimeout(function() {
+    const vA = app.valorNF.toFixed(2);
+    const vN = app.valorReal.toFixed(2);
+
+    addLog('log-corrigir', 'Valor atual no XML: ' + fmt(vA), 'info');
+    addLog('log-corrigir', 'Valor real da venda: ' + fmt(vN), 'info');
+    addLog('log-corrigir', 'Substituindo campos...', 'warn');
+
+    let xml = app.xmlOriginal;
+    let total = 0;
+    ['vProd','vUnCom','vUnTrib','vNF','vPag'].forEach(function(campo) {
+      const reg = new RegExp('<' + campo + '>' + vA.replace('.', '\\.') + '</' + campo + '>', 'g');
+      const matches = xml.match(reg);
+      if(matches) {
+        xml = xml.replace(reg, '<' + campo + '>' + vN + '</' + campo + '>');
+        total += matches.length;
+        addLog('log-corrigir', '✅ <' + campo + '> ' + vA + ' → ' + vN, 'ok');
+      }
+    });
+
+    addLog('log-corrigir', total + ' substituições realizadas', 'info');
+    addLog('log-corrigir', '⚠️ Assinatura digital não recalculada', 'warn');
+    addLog('log-corrigir', 'XML corrigido com sucesso!', 'ok');
+
+    app.xmlCorrigido = xml;
+
+    // Preenche step 6
+    document.getElementById('fin-numero').textContent = 'Nº ' + app.numeroNF + ' | Série 4';
+    document.getElementById('fin-valor').textContent = fmt(app.valorReal);
+    document.getElementById('fin-ml').textContent = app.pedido.numero_ecommerce;
+
+    setTimeout(function() { mudarStep('step6', 6); }, 800);
+  }, 500);
+}
+
+// ── DOWNLOADS ──
+function baixarXmlOriginal() {
+  if(!app.xmlOriginal) { alert('XML não disponível!'); return; }
+  const blob = new Blob([app.xmlOriginal], {type:'text/xml'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = app.nomeArquivo;
+  a.download = 'ORIGINAL_' + app.nomeArquivo;
+  a.click();
+}
+
+function baixarXmlCorrigido() {
+  if(!app.xmlCorrigido) { alert('XML corrigido não disponível!'); return; }
+  const blob = new Blob([app.xmlCorrigido], {type:'text/xml'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'CORRIGIDO_' + app.nomeArquivo;
   a.click();
 }
 
 // ── NOVA NF ──
 function novaNotaFiscal() {
-  app.pedido = null; app.xmlGerado = '';
+  app.pedido = null; app.xmlOriginal = ''; app.xmlCorrigido = '';
+  app.numeroNF = ''; app.valorNF = 0; app.valorReal = 0;
   document.getElementById('id-pedido').value = '';
   mudarStep('step1', 1);
 }
