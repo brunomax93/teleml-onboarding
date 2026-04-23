@@ -289,19 +289,23 @@ function logout() {
 // ── BUSCAR PEDIDO ──
 async function buscarPedido() {
   const btn = document.getElementById('btn-buscar');
-  const idPedido = document.getElementById('id-pedido').value.trim();
-  if(!idPedido) { alert('Informe o ID do pedido!'); return; }
+  let input = document.getElementById('id-pedido').value.trim();
+  
+  // Extrai ID se usuário colou a URL completa
+  const match = input.match(/edit\/(\d+)/);
+  if(match) input = match[1];
+  
+  if(!input || isNaN(input)) { alert('Informe o ID do pedido (apenas números)!'); return; }
 
   btn.innerHTML = '<span class="spinner"></span>Buscando...';
   btn.disabled = true;
 
   try {
-    const data = await chamarProxy({ action: 'buscar_pedido_olist', usuario: app.usuario, id_pedido: idPedido });
+    const data = await chamarProxy({ action: 'buscar_pedido_olist', usuario: app.usuario, id_pedido: input });
     if(data.error) throw new Error(data.message);
 
     app.pedido = data;
 
-    // Exibe dados do pedido
     document.getElementById('dados-pedido').innerHTML =
       '<div class="dado-row"><span class="dado-label">Cliente:</span><span class="dado-valor">' + data.cliente_nome + '</span></div>' +
       '<div class="dado-row"><span class="dado-label">CPF:</span><span class="dado-valor">' + data.cliente_cpf + '</span></div>' +
@@ -309,7 +313,6 @@ async function buscarPedido() {
       '<div class="dado-row"><span class="dado-label">Valor total:</span><span class="dado-valor" style="color:var(--verde)">' + fmt(data.valor_total) + '</span></div>' +
       '<div class="dado-row"><span class="dado-label">Produto:</span><span class="dado-valor" style="font-size:0.85rem">' + (data.itens[0] ? data.itens[0].item.descricao.substring(0,40) : '—') + '</span></div>';
 
-    // Atualiza cálculos
     atualizarPct(50);
     irStep(2);
 
